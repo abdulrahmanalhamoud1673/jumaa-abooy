@@ -1,0 +1,583 @@
+{
+  "speakers": {
+    "dad": {
+      "voice": "Algenib",
+      "profile": "Abu Saif, a Jordanian father in his fifties: deep, rough voice, short temper, heart of gold",
+      "scene": "At home in Amman, Jordan. He patrols the house and finds something to be angry about in every room.",
+      "styles": {
+        "yell": "The raw, real shouting of an angry Arab dad scolding his kids. Loud, sharp, exasperated, fast. Like real life, never like a narrator or a news anchor.",
+        "call": "Shouting an order from another room so the whole house hears it. Loud, impatient, drawn-out vowels on the key word.",
+        "mutter": "Low grumbling to himself, tired and fed up, half under his breath, slow.",
+        "lecture": "A stern, slow-burning father's lecture. Starts controlled and heavy, each sentence more indignant than the last, wagging a finger.",
+        "chase": "Furious and out of breath while chasing his kid around the house with a slipper in his hand. Explosive, short shouts.",
+        "narr": "Grumpy, loud announcements to the whole family, as if giving orders for the day.",
+        "whisper": "A threatening hiss through a fake smile, whispering so the guests in the room do not hear. Quiet but furious.",
+        "sleepy": "Just woken from a nap: groggy, hoarse, confused and angry about it.",
+        "warm": "Rare tenderness: calm, tired, quietly affectionate, a little embarrassed to show it.",
+        "pleased": "Grudgingly satisfied. Calm, short, a hint of pride he tries to hide.",
+        "sarcastic": "Dripping sarcasm: a fed-up Arab dad mocking his kids with fake admiration. Drawn-out, sing-song mockery on the first words, then a sharp snap at the end. Loud and theatrical, never flat.",
+        "smug": "Up to no good and loving it: low, quiet, deeply satisfied with his own mischief, a held-back chuckle in the voice, talking to himself under his breath.",
+        "innocent": "Shouting back across the street with exaggerated fake innocence, hand on heart, enjoying every word. Loud, wide-eyed, a little too sweet to be believed."
+      }
+    },
+    "mom": {
+      "voice": "Sulafat",
+      "profile": "Um Saif, a Jordanian mother in her forties: warm, tired, the family's peacemaker",
+      "scene": "In the kitchen at home in Amman, cooking, while her husband shouts in the next room.",
+      "styles": {
+        "warm": "Warm, tender, motherly, a little tired. Natural home speech, not acted.",
+        "firm": "Firm and protective, standing up to her husband to defend the kids. Raised voice, fast.",
+        "hush": "An urgent whispered warning to her kids so the father does not hear."
+      }
+    },
+    "sis": {
+      "voice": "Leda",
+      "profile": "Salma, a 12-year-old Jordanian girl: the family snitch, smug and sing-song",
+      "scene": "At home. She has just caught her brother doing something he should not.",
+      "styles": {
+        "snitch": "A girl yelling for her dad to come look, loud, gleeful, tattling, drawn-out 'babaaa'.",
+        "smug": "Smug, teasing, sing-song little sister.",
+        "whine": "Whiny, defensive, on the edge of tears."
+      }
+    },
+    "kid": {
+      "voice": "Puck",
+      "profile": "Hammoudeh, a 7-year-old Jordanian boy: tiny agent of chaos with a high, squeaky voice",
+      "scene": "Running around the house touching everything he is not supposed to.",
+      "styles": {
+        "imp": "A giggling, mischievous little boy, high-pitched, breathless with excitement.",
+        "whine": "A little boy crying and protesting that it was not him."
+      }
+    },
+    "big": {
+      "voice": "Achird",
+      "profile": "Saif, a lazy 16-year-old Jordanian teenager who never looks up from his game",
+      "scene": "Slumped in his room playing PlayStation.",
+      "styles": {
+        "lazy": "Bored, flat, mumbling teenager who cannot be bothered.",
+        "whine": "A teenager protesting loudly that he is being blamed unfairly.",
+        "snitch": "A teenager calling out to his dad to tell on his sibling, smug."
+      }
+    },
+    "uncle": {
+      "voice": "Charon",
+      "profile": "Abu Firas, a loud, jovial Jordanian uncle in his sixties visiting for coffee",
+      "scene": "Sitting in the guest salon, sipping Arabic coffee.",
+      "styles": { "jolly": "Booming, hearty, over-friendly guest. Laughs easily." }
+    },
+    "rider": {
+      "voice": "Zubenelgenubi",
+      "profile": "Captain from talabat, a friendly young Jordanian delivery rider in his twenties: quick, polite, a little out of breath from the ride",
+      "scene": "At the front gate of a family house in Amman, holding a takeaway bag, his scooter ticking over behind him.",
+      "styles": {
+        "polite": "Friendly, quick and polite at a front gate, a little out of breath, upbeat, like a real delivery rider in a hurry."
+      }
+    },
+    "aunt": {
+      "voice": "Gacrux",
+      "profile": "Um Firas, a nosy, sweet Jordanian auntie in her fifties",
+      "scene": "Sitting in the guest salon.",
+      "styles": { "sweet": "Syrupy sweet, nosy auntie, drawn-out compliments." }
+    }
+  },
+  "lines": {
+    "dad.idle": { "who": "dad", "style": "yell", "t": [
+      "شو هالوقفة؟ ما في شغل بهالبيت؟!",
+      "واقفين زي الصنم! تحركوا!",
+      "شو، بدك عزومة؟ يلا عالشغل!",
+      "البيت كله شغل وأنا شايف ناس واقفة!",
+      "يلا يلا يلا! مش فاضيين نتفرج عالحيطان!",
+      "أنا بعمرك كنت شايل البيت عراسي!",
+      "شو، خلص كل الشغل؟ ولا مستنيين الفرج؟",
+      "هاظ اللي فالحين فيه… الوقفة!" ] },
+    "dad.run": { "who": "dad", "style": "yell", "t": [
+      "لا تركضوا بالبيت! هاد بيت مش ملعب!",
+      "شوي شوي! رح تكسّروا البيت!",
+      "مين اللي بيركض؟! البيت بيهتز!",
+      "امشوا زي العالم والناس!",
+      "ولك شو صاير؟ حريقة؟! ليش الركض؟",
+      "البلاط مش ببلاش! شوي شوي!" ] },
+    "dad.khilfe": { "who": "dad", "style": "yell", "t": [
+      "تفو! تفو على هيك خلفة!",
+      "هاي خلفة هاي؟! يا ريتني جبت كيس بطاطا، عالقليلة بنقليه!",
+      "تفو عليك وعلى اللي خلّفك!… استنى، أنا اللي خلّفتك!",
+      "أنا بعمرك كنت فاتح بيت! وإنت مش عارف تفتح شبّاك!",
+      "ابن أبو خليل صار مهندس! وإنت؟ مهندس كنباية!",
+      "عشرين سنة تربية… وبالآخر طلع معي هيك؟ رجّعولي مصاريّ!",
+      "لو زرعت بدالك زيتونة، كان هسا عندي زيت وزيتون!",
+      "تفو! الله يسامحني بس… تفو كمان مرة!",
+      "يا خسارة الأكل اللي أكلته، يا خسارة!",
+      "هاظ جيل؟ هاظ مش جيل، هاظ عقاب من ربنا!" ] },
+    "dad.company": { "who": "dad", "style": "sarcastic", "t": [
+      "لو إنتو بتشتغلوا بهالحكي… لازم تشتغلوا بشركة إنتو!",
+      "ما شاء الله عالتنظير! روحوا افتحوا شركة استشارات!",
+      "لو شغلكم قد حكيكم، كان صرتوا مدرا شركات!",
+      "بالشركة هيك شغل؟ من أول يوم بيطردوكم! وأنا لسا مستحملكم!",
+      "هون مش شركة! ما في إجازات ولا استراحة غدا!",
+      "بدك راتب كمان؟ قدّم استقالتك من هالبيت أحسنلك!",
+      "أنا المدير هون! والدوام أربعة وعشرين ساعة!",
+      "شو هاظ، اجتماع مجلس إدارة؟ قوم اشتغل وإنت ساكت!" ] },
+    "dad.car.spot": { "who": "dad", "style": "yell", "t": [
+      "مين هاظ اللي صافف على باب داري؟!",
+      "ولك هاي دار ولا كراج البلدية؟!",
+      "صافف عالباب؟! طيب… طيب. هسا بفرجيك." ] },
+    "dad.car.sneak": { "who": "dad", "style": "smug", "t": [
+      "هسا بعلّمك وين تصف…",
+      "ولا حدا شايف؟… منيح." ] },
+    "dad.car.do": { "who": "dad", "style": "smug", "t": [
+      "تسسسس… آآآه، أحلى صوت بالدنيا.",
+      "خُد نفَس… نفَس عميق يا حبيبي.",
+      "هيك… على مهلك… فضّي همومك." ] },
+    "dad.car.done": { "who": "dad", "style": "smug", "t": [
+      "هيك بتتعلم تصف على باب الناس.",
+      "وهاي كمان درس ببلاش.",
+      "المرة الجاي بنفّسلك الأربعة." ] },
+    "dad.car.hush": { "who": "dad", "style": "whisper", "t": [
+      "إنت ما شفت إشي! مفهوم؟!",
+      "ولا كلمة لأمك! هاي بيناتنا.",
+      "شو بتطّلع؟ كنت بفحص الهوا!" ] },
+    "dad.car.deny": { "who": "dad", "style": "innocent", "t": [
+      "مش أنا! اسأل ولاد الحارة!",
+      "أنا؟! أنا كنت بصلّي!",
+      "عجلك منفّس؟ يا حرام… الله يعوّض عليك!",
+      "صُف عند باب داركم المرة الجاي!" ] },
+    "dad.study": { "who": "dad", "style": "pleased", "t": [
+      "آه… هيك بدي إياك. كمّل.",
+      "ادرس، ادرس… بكرا بتصير دكتور وبتعالجني ببلاش.",
+      "ما شاء الله… بس لا تنغرّ.",
+      "أول مرة بشوفك فاتح كتاب! وين الكاميرا؟",
+      "برافو… بس الكتاب مقلوب يابا.",
+      "هيك الرجال… الدراسة قبل كل إشي." ] },
+    "dad.cam": { "who": "dad", "style": "yell", "t": [
+      "شايفك عالكاميرا! لا تفكّر حالك مخبّى!",
+      "الكاميرا ما بتكذب يا حبيبي!",
+      "أنا قاعد هون وشايف كل إشي… كل إشي!",
+      "ركّبت الكاميرات عشانك إنت بالذات!",
+      "ابتسم… إنت عالكاميرا!" ] },
+    "dad.talabat": { "who": "dad", "style": "yell", "t": [
+      "طلبات؟! هاد اللي شاطر فيه… بس توكل وتنام!",
+      "أكل جاهز؟! وأمك طابخة مقلوبة جوّا؟!",
+      "كل يوم طلبات طلبات! مصاري أبوك ببلاش؟!",
+      "بتوكل… طخ… وبتنام! هاي كل حياتك!",
+      "الأكل الجاهز كله زيت ومرض! تفو!",
+      "إحنا بعمرك كنا نوكل خبز وزيت وزعتر ونحمد ربنا!",
+      "الدليفري صار يعرف دارنا أكثر من خوالك!" ] },
+    "rider.hi": { "who": "rider", "style": "polite", "t": [
+      "مسا الخير! طلبات… الأوردر جاهز.",
+      "يعطيك العافية، طلبك وصل!",
+      "طلبات! مين صاحب الأوردر؟" ] },
+    "rider.give": { "who": "rider", "style": "polite", "t": [
+      "تفضّل يا غالي، بالصحة والعافية.",
+      "صحتين! ولا تنسى تقيّمنا خمس نجوم.",
+      "الحساب مدفوع… يلا بالهنا." ] },
+    "rider.wait": { "who": "rider", "style": "polite", "t": [
+      "ألو؟ أنا واقف عالباب يا غالي.",
+      "يا جماعة… الطلبات عالباب!" ] },
+    "rider.leave": { "who": "rider", "style": "polite", "t": [
+      "تركتلك الطلب معلّق عالباب… سلام!" ] },
+    "dad.phone": { "who": "dad", "style": "yell", "t": [
+      "التلفون! كمان التلفون؟!",
+      "هالتلفون ما بينزل من الإيد؟!",
+      "أربعة وعشرين ساعة عالتلفون! عيونكم راحت!",
+      "شو فيه هالتلفون؟ ذهب؟!",
+      "والله لأرميه من الشباك هالتلفون!",
+      "التلفون خرب بيوتكم!",
+      "التلفون… لعندي. هسّا!",
+      "أنا بدفع فواتير عشان تقعدوا عالتيك توك؟!" ] },
+    "dad.ps": { "who": "dad", "style": "yell", "t": [
+      "بلايستيشن؟! والدراسة؟ والشغل؟!",
+      "طفّوا هاللعبة! هسّا!",
+      "آخ من هالألعاب… خرّبت عقولكم!",
+      "قاعدين تلعبوا والبيت مقلوب؟!",
+      "والله لأبيعها هالبلايستيشن!",
+      "هاللعبة رح تطعمك خبز؟!" ] },
+    "dad.sneak": { "who": "dad", "style": "yell", "t": [
+      "ليش ماشيين عروس أصابعكم؟ شو عاملين؟",
+      "شو هالمشية؟ زي الحرامية!",
+      "أنا شايفك… شايفك! شو في؟",
+      "اللي بيمشي هيك أكيد عامل مصيبة!",
+      "وين وين وين؟ زي القط بالليل!" ] },
+    "dad.fridge": { "who": "dad", "style": "yell", "t": [
+      "سكّروا الثلاجة! بتبرّدوا عمّان كلها؟!",
+      "الثلاجة مش تلفزيون تتفرجوا عليها!",
+      "كل شوي فاتحين الثلاجة! شو متوقعين تلاقوا؟!",
+      "باب الثلاجة! الباب!",
+      "الأكل وقت الأكل! سكّروها!" ] },
+    "dad.light": { "who": "dad", "style": "yell", "t": [
+      "مين تارك الضو شغّال؟!",
+      "الضو! الضو! أبوكم شريك بشركة الكهربا؟!",
+      "غرفة فاضية والضو والع! مين بيدفع؟ أنا!",
+      "والله فاتورة الكهربا أغلى من الإيجار!",
+      "طفّوا الأضوية! قاعدين بقصر؟",
+      "كل البيت مضوّي زي العرس!",
+      "أنا بطفّي وهم بيشعلوا… أنا بطفّي وهم بيشعلوا!",
+      "الشمس طالعة والضو شغّال؟! يا عيب الشوم!" ] },
+    "dad.ac": { "who": "dad", "style": "yell", "t": [
+      "المكيف شغّال والشباك مفتوح؟! بتكيّفوا الحارة؟!",
+      "مين شغّل المكيف؟! الجو منيح!",
+      "طفّوا المكيف! في مروحة!",
+      "المكيف للضيوف بس!",
+      "عارفين المكيف قديش بيسحب كهربا؟ عارفين؟!" ] },
+    "dad.tv": { "who": "dad", "style": "yell", "t": [
+      "مين واقف قدام التلفزيون؟! وخّروا!",
+      "أبوك قزّاز؟! مش شايف إشي!",
+      "الأخبار! فوّتتوا عليّ الخبر!",
+      "ولا مرة عرفت أحضر الأخبار بهالبيت!",
+      "شششش! بدي أسمع!" ] },
+    "dad.tvon": { "who": "dad", "style": "yell", "t": [
+      "التلفزيون شغّال وما حدا قاعد؟!",
+      "مين بيتفرج؟ الحيطان؟! طفّوه!" ] },
+    "dad.mess": { "who": "dad", "style": "yell", "t": [
+      "شو هاظ؟! مين عمل هيك؟!",
+      "البيت زريبة! زريبة!",
+      "مين كسر هاي؟! احكوا!",
+      "أنا بشتغل ليل نهار عشان تخرّبوا؟!",
+      "والله ما بتعرفوا قيمة الإشي!",
+      "تعالوا شوفوا هالمصيبة!" ] },
+    "dad.noise": { "who": "dad", "style": "call", "t": [
+      "شو هالصوت؟",
+      "مين هناك؟",
+      "سامع إشي… مين بيخبّط؟",
+      "شو صاير جوّا؟!",
+      "إيش وقع؟ إيش انكسر؟!",
+      "هدوء! بدي هدوء بهالبيت!" ] },
+    "dad.search": { "who": "dad", "style": "mutter", "t": [
+      "وين راحوا؟",
+      "أنا عارف إنك هون…",
+      "اللي متخبّي يطلع… أحسنله!",
+      "بتتخبوا مني؟ مني أنا؟!",
+      "رح ألاقيك… وين بدك تروح؟ البيت بيتي!" ] },
+    "dad.found": { "who": "dad", "style": "yell", "t": [
+      "هاه! لقيتك!",
+      "بالخزانة؟! شو، صرنا فيران؟!",
+      "تحت التخت؟! يا عيني عليكم!",
+      "بتتخبوا من أبوكم؟! أبوكم!",
+      "قوموا من هون! لعبة غمّيضة هي؟" ] },
+    "dad.come": { "who": "dad", "style": "call", "t": [
+      "تعالوا هون! هسّا!",
+      "وين رايحين؟ تعالوا!",
+      "ولكو! لهون!",
+      "يا أولاد! حدا ييجي لهون!",
+      "بدي واحد منكم… هسّا!" ] },
+    "dad.call.big": { "who": "dad", "style": "call", "t": [ "سييييف! يا سيف!", "سيف! وينك يا ولد؟!" ] },
+    "dad.call.kid": { "who": "dad", "style": "call", "t": [ "حمودة! ولك يا حمودة!", "يا حمووودة! تعال هون!" ] },
+    "dad.call.sis": { "who": "dad", "style": "call", "t": [ "سلمى! يا سلمى!", "يا بابا يا سلمى! تعالي!" ] },
+    "dad.cmd.tea": { "who": "dad", "style": "call", "t": [
+      "حدا يعملّي كاسة شاي!",
+      "وين الشاي؟ من ساعة بستنى!",
+      "شاي… وسكّر خفيف!" ] },
+    "dad.cmd.water": { "who": "dad", "style": "call", "t": [
+      "كاسة مي! نشف ريقي!",
+      "حدا يجيبلي مي باردة!",
+      "مي يا أولاد! مي!" ] },
+    "dad.cmd.remote": { "who": "dad", "style": "call", "t": [
+      "وين الريموت؟! مين آخر واحد مسكه؟!",
+      "الريموت! دوّروا عالريموت!",
+      "كل يوم بيضيع الريموت بهالبيت!" ] },
+    "dad.cmd.glasses": { "who": "dad", "style": "call", "t": [
+      "نظاراتي! مين شاف نظاراتي؟",
+      "جيبولي النظارات… مش شايف إشي!" ] },
+    "dad.cmd.charger": { "who": "dad", "style": "call", "t": [
+      "وين شاحني؟! مين أخذ شاحني؟!",
+      "الشاحن الأصلي! مش الصيني… جيبوه!" ] },
+    "dad.cmd.callmom": { "who": "dad", "style": "call", "t": [
+      "نادوا أمكم!",
+      "وين أمكم؟ احكولها تيجي!" ] },
+    "dad.cmd.slipper": { "who": "dad", "style": "call", "t": [
+      "جيبولي الشبشب!",
+      "الشبشب… رجّعوه لهون!",
+      "وين راح شبشبي؟ هاتوه!" ] },
+    "dad.cmd.door": { "who": "dad", "style": "call", "t": [
+      "الباب بيدق! حدا يفتح!",
+      "افتحوا الباب! مش سامعين؟!" ] },
+    "dad.cmd.paper": { "who": "dad", "style": "call", "t": [
+      "الجريدة! وين الجريدة؟",
+      "حدا يجيبلي الجريدة من عند الباب!" ] },
+    "dad.cmd.light": { "who": "dad", "style": "call", "t": [
+      "في ضو شغّال… حدا يطفّيه!",
+      "شايف ضو من هون! طفّوه!" ] },
+    "dad.cmd.ok": { "who": "dad", "style": "pleased", "t": [
+      "أخيراً!",
+      "يسلمو… بس تأخرتوا.",
+      "هيك الشغل!",
+      "ماشي… ماشي الحال.",
+      "الله يرضى عليكم. بس المرة الجاي أسرع!",
+      "منيح… مش عاطل." ] },
+    "dad.cmd.late": { "who": "dad", "style": "yell", "t": [
+      "ساعة عشان طلب واحد؟!",
+      "خلص خلص! ما بدي!",
+      "لو رحت أنا كان خلصت من زمان!",
+      "نسيتوا؟! طبعاً نسيتوا!",
+      "بطلب الطلب عشر مرات بهالبيت!",
+      "ما حدا بيسمع الكلام!" ] },
+    "dad.cmd.spill": { "who": "dad", "style": "yell", "t": [
+      "انكبّ الشاي؟! عالسجادة؟!",
+      "ارجعوا اعملوا غيره! وامسحوا الأرض!" ] },
+    "dad.lecture": { "who": "dad", "style": "lecture", "t": [
+      "اسمعوا… أنا بعمركم كنت أصحى الفجر، أمشي خمسة كيلو عالمدرسة، وأرجع أشتغل مع جدّكم بالأرض. وما كنت أفتح ثمّي! وإنتو؟ كل إشي واصلكم ومش عاجبكم!",
+      "شايفين هالبيت؟ هاد كله من تعبي. حجر حجر. وإنتو مش قادرين تطفّوا ضو وراكم! ضو! كبسة وحدة!",
+      "أنا ما بطلب كثير. بطلب شوية احترام، وشوية ترتيب، والواحد يسمع الكلمة من أول مرة. مش من عاشر مرة!",
+      "بكرا بتكبروا وبيصير عندكم ولاد، وبتعرفوا قيمة الكلام اللي بحكيه. وقتها بتقولوا الله يرحم أيام أبوي!",
+      "ابن عمكم أحمد… شايفين ابن عمكم أحمد؟ الأول عالصف، وبيساعد أبوه بالمحل، وبيصلي الفجر حاضر! وإنتو؟ تلفون ونوم!",
+      "الحياة مش لعب. الحياة مسؤولية. الواحد لازم يعتمد على حاله. أنا مش دايم إلكم!",
+      "لما كنا صغار ما كان في لا مكيف ولا تلفون ولا بلايستيشن. كان في كفّ… وكنا أحسن ناس!",
+      "عارفين قديش فاتورة الكهربا؟ عارفين قديش المي؟ عارفين قديش كيلو البندورة؟ لا مش عارفين! عشان هيك مش سائلين!" ] },
+    "dad.lecture.end": { "who": "dad", "style": "lecture", "t": [
+      "فاهمين؟",
+      "يلا… من وجهي!",
+      "والمرة الجاي ما في حكي… في شبشب.",
+      "روحوا كمّلوا شغلكم." ] },
+    "dad.nod.good": { "who": "dad", "style": "pleased", "t": [ "آه… هيك.", "منيح إنكم فاهمين.", "إيوا." ] },
+    "dad.nod.bad": { "who": "dad", "style": "yell", "t": [
+      "مش سامعيني؟!",
+      "بحكي مع الحيط أنا؟!",
+      "عيونكم لهون وأنا بحكي!" ] },
+    "dad.confiscate": { "who": "dad", "style": "yell", "t": [
+      "هاد… عندي لآخر الأسبوع!",
+      "مصادرة! خلص!",
+      "بتشوفوه بس تنجحوا!",
+      "من اليوم ما في تلفون ولا في لعب!",
+      "حطّيته بالخزانة… واللي بيقرّب عليه بيشوف!" ] },
+    "dad.punish": { "who": "dad", "style": "narr", "t": [
+      "وكمان… غسيل السيارة عليك!",
+      "والحوش بده كنس… مبروك!",
+      "والزريعة بدها سقاية. يلا!",
+      "وعقاب… الجلي كله عليك اليوم!" ] },
+    "dad.slipper.windup": { "who": "dad", "style": "chase", "t": [
+      "والله لأورّيك!",
+      "وين الشبشب؟… هيّو!",
+      "وقّفوا عندكم!",
+      "هسّا بتشوفوا!",
+      "هااااي!",
+      "امسك!" ] },
+    "dad.slipper.hit": { "who": "dad", "style": "chase", "t": [
+      "هاي عشان تتعلموا!",
+      "زابطة!",
+      "آه… ارتحت.",
+      "ولسّا في الثانية!",
+      "من أول رمية! لسّا إيدي منيحة!" ] },
+    "dad.slipper.miss": { "who": "dad", "style": "chase", "t": [
+      "هربتوا؟! … راجعلكم!",
+      "آخ… راحت!",
+      "وقّفوا! مش رح أركض وراكم!",
+      "إيدي مش زي زمان…",
+      "والله لو مسكتكم!" ] },
+    "dad.barefoot": { "who": "dad", "style": "narr", "t": [ "…وصرت حافي. جيبولي الشباشب!" ] },
+    "dad.explode": { "who": "dad", "style": "chase", "t": [
+      "خلص!!! طفح الكيل!!!",
+      "كل واحد عغرفته! هسّا! وما بدي أسمع نَفَس!",
+      "ما في طلعة! ما في تلفون! ما في إشي! لآخر الشهر!",
+      "أنا الغلطان اللي دلّعتكم!" ] },
+    "dad.mutter": { "who": "dad", "style": "mutter", "t": [
+      "أستغفر الله العظيم…",
+      "لا حول ولا قوة إلا بالله…",
+      "الله يهديكم…",
+      "هالجيل… هالجيل ما بينفع.",
+      "يا رب صبّرني…",
+      "كل إشي غالي… كل إشي.",
+      "آخ يا ظهري…",
+      "وين كنا ووين صرنا…",
+      "إحم… إحم!",
+      "هممم…" ] },
+    "dad.news": { "who": "dad", "style": "mutter", "t": [
+      "شوف شوف… خربانة البلد.",
+      "كله حكي فاضي!",
+      "الأسعار نار… نار!",
+      "هاظ الوزير… والله ما بيعرف إشي.",
+      "زمان كانت الدنيا بخير." ] },
+    "dad.tea": { "who": "dad", "style": "pleased", "t": [ "آآآه… هيك الشاي.", "الله… رواق." ] },
+    "dad.blame.kid": { "who": "dad", "style": "yell", "t": [
+      "حمودة! إنت اللي عملتها؟!",
+      "ولك يا حمودة! تعال لهون!",
+      "هالصغير طالع لمين؟!" ] },
+    "dad.blame.big": { "who": "dad", "style": "yell", "t": [
+      "سيف! إنت الكبير! إنت القدوة!",
+      "يا سيف… عيب عليك، زلمة طول بعرض!" ] },
+    "dad.blame.sis": { "who": "dad", "style": "yell", "t": [
+      "سلمى… حتى إنتي يا بابا؟",
+      "يا سلمى! من وين متعلمة هالحركات؟" ] },
+    "dad.eldest": { "who": "dad", "style": "yell", "t": [
+      "إنت الكبير! إنت المسؤول عن أخوك!",
+      "أخوك الصغير بيخرّب وإنت وين؟!" ] },
+    "dad.soft.sis": { "who": "dad", "style": "warm", "t": [
+      "حبيبة بابا… بس آخر مرة!",
+      "عشانك بنت بسامحك… هالمرة بس." ] },
+    "dad.praise": { "who": "dad", "style": "pleased", "t": [
+      "مش عاطل… مش عاطل.",
+      "والله طلعتوا بتفهموا.",
+      "إيوا… هيك بدي إياكم.",
+      "بس لا تتعودوا عالمدح!",
+      "هيك الشغل النظيف." ] },
+    "dad.intro.sat": { "who": "dad", "style": "narr", "t": [ "اليوم السبت. عطلة. يعني البيت بده تعزيل من أوله لآخره!" ] },
+    "dad.intro.sun": { "who": "dad", "style": "narr", "t": [ "قوموا! الباص ما بيستنى حدا! سبعة إلا ربع!" ] },
+    "dad.intro.mon": { "who": "dad", "style": "narr", "t": [ "أجت فاتورة الكهربا. مية وثمانين دينار! مية وثمانين! من اليوم… ولا ضو!" ] },
+    "dad.intro.tue": { "who": "dad", "style": "narr", "t": [ "نشرة الأخبار الساعة ثمانية. ما بدي أسمع صوت… ولا نَفَس!" ] },
+    "dad.intro.wed": { "who": "dad", "style": "narr", "t": [ "سمعت إنه الشهادات طلعت اليوم. … وين الشهادة؟" ] },
+    "dad.intro.thu": { "who": "dad", "style": "narr", "t": [ "اليوم جايينا ضيوف. دار عمكم أبو فراس. البيت لازم يلمع… وما بدي فضايح!" ] },
+    "dad.intro.fri": { "who": "dad", "style": "narr", "t": [ "يوم الجمعة… يوم مبارك. يلا عالشغل!" ] },
+    "dad.sat": { "who": "dad", "style": "narr", "t": [
+      "رتّبوا تخوتكم أول إشي!",
+      "والغسيل… عالغسّالة! مش عالأرض!" ] },
+    "dad.sun": { "who": "dad", "style": "call", "t": [
+      "تأخرنا! تأخرنا!",
+      "وين الشنطة؟ وين الجرابات؟!",
+      "أنا بالسيارة! اللي ما بينزل بدقيقة بيروح مشي!",
+      "كل يوم نفس القصة!" ] },
+    "dad.mon": { "who": "dad", "style": "yell", "t": [
+      "مين شغّل السخّان؟!",
+      "عدّاد الكهربا بيركض ركض!",
+      "الشاحن بالكهربا وما في تلفون؟! اشلحوه!",
+      "حتى ضو الحمّام؟!" ] },
+    "dad.wed": { "who": "dad", "style": "yell", "t": [
+      "الشهادة… لهون.",
+      "رياضيات… خمسة وأربعين؟! من مية؟!",
+      "أنا ببعثكم عالمدرسة عشان خمسة وأربعين؟!",
+      "شو بتعملوا بالمدرسة؟ بتعدّوا الشبابيك؟",
+      "ادرسوا! بدي أسمع صوت دراسة!" ] },
+    "dad.wed.check": { "who": "dad", "style": "narr", "t": [
+      "عم تدرسوا؟ … خليني أشوف.",
+      "منيح. كمّلوا.",
+      "وين صاحب هالمكتب؟! وين راح؟!" ] },
+    "dad.wed.sign": { "who": "dad", "style": "mutter", "t": [
+      "وين أوقّع؟ … أي ورقة هاي؟",
+      "هاي ورقة شو؟ رحلة؟ … ماشي." ] },
+    "dad.thu": { "who": "dad", "style": "whisper", "t": [
+      "قعدتك! عدّل قعدتك!",
+      "بس يروحوا الضيوف…",
+      "ابتسم… ابتسم!",
+      "الكبير أول! قدّموا للكبير أول!",
+      "والله لأورّيكم بعدين…",
+      "لا تفضحونا!" ] },
+    "dad.thu.fake": { "who": "dad", "style": "pleased", "t": [
+      "هههه… ولادنا ما شاء الله عليهم!",
+      "تفضلوا تفضلوا… البيت بيتكم!" ] },
+    "dad.thu.after": { "who": "dad", "style": "narr", "t": [ "راحوا الضيوف. … تعالوا هون كلكم." ] },
+    "dad.fri.wake": { "who": "dad", "style": "call", "t": [
+      "قوموا! قوموا! الدنيا ظهر!",
+      "نايمين لهسّا؟! الناس خلّصت شغلها!",
+      "أنا صاحي من الفجر!" ] },
+    "dad.fri.pray": { "who": "dad", "style": "call", "t": [
+      "يلا عالصلاة! اللي ما بيجهز بخمس دقايق بيضل بالبيت!",
+      "البسوا منيح! رايحين عالجامع مش عالملعب!",
+      "مين خلّص المي السخنة؟!" ] },
+    "dad.fri.lunch": { "who": "dad", "style": "narr", "t": [
+      "المنسف جاهز! عالسفرة يلا!",
+      "كلوا بإيدكم اليمين!",
+      "اللبن! حدا يجيب اللبن!",
+      "لا حدا يقوم قبل ما أخلّص!" ] },
+    "dad.fri.nap": { "who": "dad", "style": "narr", "t": [ "أنا داخل أنام ساعة. اللي بيطلّع صوت… بيشوف." ] },
+    "dad.fri.woken": { "who": "dad", "style": "sleepy", "t": [
+      "مين؟! مين صحّاني؟!",
+      "ولا ساعة نوم بهالبيت؟!",
+      "هاه؟ شو؟ مين؟ … آخ." ] },
+    "dad.fri.evening": { "who": "dad", "style": "sleepy", "t": [
+      "قمت… ومزاجي مش رايق.",
+      "وين الشاي؟ وين الجريدة؟ وين الريموت؟" ] },
+    "dad.fri.end": { "who": "dad", "style": "warm", "t": [
+      "…تعالوا هون. اقعدوا جنبي.",
+      "والله إنكم أحسن ولاد… بس لا تحكوا لحدا إني حكيت هيك.",
+      "الله يرضى عليكم. … وبكرا بتصحوا بدري!" ] },
+
+    "mom.ask": { "who": "mom", "style": "warm", "t": [
+      "يمّا… بدي مساعدة بالمطبخ.",
+      "حدا يجيبلي بندورة من الثلاجة يمّا!",
+      "الغسيل يمّا… حدا ينشره!",
+      "يمّا الزبالة… بدها تنزل.",
+      "قطّعولي هالبصلات الله يرضى عليكم." ] },
+    "mom.thanks": { "who": "mom", "style": "warm", "t": [
+      "الله يرضى عليك يمّا.",
+      "يسلمو إيديك يا روحي.",
+      "هيك الولاد الحنونين!",
+      "رح أحكي لأبوك إنك ساعدتني." ] },
+    "mom.cover": { "who": "mom", "style": "firm", "t": [
+      "خلص يا أبو سيف! الولاد كانوا عندي بيساعدوني!",
+      "أبو سيف… وحّد الله! شو صار يعني؟",
+      "اتركهم… أنا اللي بعثتهم!",
+      "يا زلمة روّق! ضغطك!" ] },
+    "mom.calm": { "who": "mom", "style": "warm", "t": [
+      "تفضل شايك يا أبو سيف… وروّق.",
+      "اشرب شايك واترك الولاد بحالهم." ] },
+    "mom.food": { "who": "mom", "style": "firm", "t": [
+      "الأكل جاهز! يلا عالسفرة!",
+      "الغدا يا ولاد!" ] },
+    "mom.ambient": { "who": "mom", "style": "warm", "t": [
+      "يا رب تستر…",
+      "وين راحت الملعقة الخشب؟",
+      "هالبيت ما بيخلص شغله…",
+      "لا تعصّبوا أبوكم اليوم الله يخليكم.",
+      "أبوكم مزاجه مش رايق… ديروا بالكم." ] },
+    "mom.warn": { "who": "mom", "style": "hush", "t": [
+      "أبوكم جاي… ديروا بالكم!",
+      "هس! أبوكم صحي!" ] },
+    "mom.kunafa": { "who": "mom", "style": "firm", "t": [
+      "الكنافة للضيوف! لا حدا يقرّب عليها!" ] },
+    "mom.sis": { "who": "mom", "style": "warm", "t": [
+      "سلمى يمّا… تعالي اجلي الصحون.",
+      "سلمى! السفرة يمّا!",
+      "يا سلمى… البنت لأمها!" ] },
+
+    "sis.snitch": { "who": "sis", "style": "snitch", "t": [
+      "بابااا! تعال شوف!",
+      "بابا! في حدا بيلعب عالتلفون!",
+      "والله لأحكي لبابا!",
+      "باباااا! شوف ابنك شو بيعمل!",
+      "شفتك! شفتك! بابااا!",
+      "ماما! بابا! تعالوا شوفوا!" ] },
+    "sis.bribe": { "who": "sis", "style": "smug", "t": [
+      "شوكولاتة؟ … ماشي. ما شفت إشي.",
+      "بس هالمرة… والمرة الجاي بدي ثنتين!",
+      "أوكي أوكي… سرّك ببير." ] },
+    "sis.tease": { "who": "sis", "style": "smug", "t": [
+      "رح تنضرب اليوم… أكيد.",
+      "بابا معصّب… الله يعينك!",
+      "أنا البنت الشاطرة بهالبيت.",
+      "هههههه!" ] },
+    "sis.blamed": { "who": "sis", "style": "whine", "t": [
+      "مش أنا! والله مش أنا!",
+      "بابا! هو اللي حطّها عندي!" ] },
+    "sis.bath": { "who": "sis", "style": "whine", "t": [
+      "مشغول! لسّا بدي ربع ساعة!",
+      "لا تدقّوا! قلت مشغول!" ] },
+
+    "kid.chaos": { "who": "kid", "style": "imp", "t": [
+      "هيهيهيهي!",
+      "ما حدا شايفني…",
+      "بحب أشعّل الضو!",
+      "ووووووو!" ] },
+    "kid.blamed": { "who": "kid", "style": "whine", "t": [
+      "مش أنا! هو!",
+      "والله مش أنا يابا!",
+      "وااااء… بدي ماما!" ] },
+    "kid.snitch": { "who": "kid", "style": "imp", "t": [
+      "بابا! سلمى عالتلفون!",
+      "بابا بابا! شوف سلمى!",
+      "رح أحكي لبابا!" ] },
+    "kid.misc": { "who": "kid", "style": "imp", "t": [
+      "بدي ألعب معكم!",
+      "أعطوني التلفون شوي!" ] },
+
+    "big.lazy": { "who": "big", "style": "lazy", "t": [
+      "مش فاضي… بلعب.",
+      "سكّروا الباب وراكم!",
+      "خمس دقايق وبقوم…",
+      "روحوا إنتو… أنا تعبان." ] },
+    "big.blamed": { "who": "big", "style": "whine", "t": [
+      "مش أنا يابا! والله!",
+      "ليش دايماً أنا؟!" ] },
+    "big.snitch": { "who": "big", "style": "snitch", "t": [
+      "يابا! شوف شو بيعملوا!",
+      "يابا… في ناس عالتلفون هون!",
+      "والله لأحكي لأبوي." ] },
+
+    "uncle.talk": { "who": "uncle", "style": "jolly", "t": [
+      "السلام عليكم! كيفكم يا جماعة؟",
+      "ما شاء الله… كبرانين!",
+      "شو بتدرسوا يا عمّي؟",
+      "القهوة زاكية… يسلمو إيديكم.",
+      "والله ولادك مأدّبين يا أبو سيف.",
+      "يلا… استأذنّا." ] },
+    "aunt.talk": { "who": "aunt", "style": "sweet", "t": [
+      "يا حبيبي… ما شاء الله!",
+      "عقبال ما نفرح فيكم." ] }
+  }
+}

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#14110d">
+<title>جمعة أبوي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;900&family=Lalezar&family=Nunito:wght@900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script type="importmap">{"imports":{"three":"./vendor/three/build/three.module.js","three/addons/":"./vendor/three/examples/jsm/"}}</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="vignette"></div>
+<div id="flash"></div>
+
+<div id="hud" hidden>
+  <div id="anger">
+    <div id="dadFace"></div>
+    <div class="col">
+      <div id="angerLabel">أبوك رايق</div>
+      <div id="angerBar"><i></i><b style="inset-inline-start:50%"></b><b style="inset-inline-start:70%"></b><b style="inset-inline-start:85%"></b></div>
+    </div>
+  </div>
+  <div id="clock"><span id="dayName"></span><span id="time"></span></div>
+  <div id="eye" data-s="0"><svg viewBox="0 0 48 28"><path d="M2 14C10 3 38 3 46 14 38 25 10 25 2 14Z"/><circle cx="24" cy="14" r="6"/></svg><span></span></div>
+  <div id="tasks"></div>
+  <div id="status">
+    <div id="tokens"></div>
+    <div id="carry"></div>
+    <div id="stamina"><i></i></div>
+  </div>
+  <div id="doing"><div class="row"><span id="doingText"></span><b id="doingLeft"></b></div><div class="bar"><i></i></div><small id="doingWhy"></small></div>
+  <div id="edge"></div>
+  <div id="pip"><div id="pipView"></div><div class="tag"><i></i>كاميرا البوابة</div></div>
+  <div id="caption"></div>
+  <div id="prompt"><span id="promptKey">E</span><span id="promptText"></span><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15"/><circle id="promptRing" cx="18" cy="18" r="15"/></svg></div>
+  <div id="toast"></div>
+  <div id="nod" hidden><div id="nodRing"></div><div id="nodText">هزّ راسك</div><div id="nodKey">مسافة</div></div>
+  <div id="help">WASD مشي · Shift ركض · C تسلل · E تفاعل · F تلفون · Esc وقفة</div>
+  <div id="touch">
+    <div id="stick"><i></i></div>
+    <button id="bUse" class="tb big"><span class="ic">✋</span></button>
+    <button id="bSneak" class="tb"><span class="ic">🤫</span><span>تسلل</span></button>
+    <button id="bPhone" class="tb"><span class="ic">📱</span></button>
+    <button id="bPause" class="tb mini">II</button>
+  </div>
+</div>
+
+<div id="rotate"><div class="ph">📱</div><p>دوّر التلفون بالعرض، اللعبة أحلى هيك</p><button class="btn ghost" id="btnAnyway">كمّل هيك</button></div>
+
+<div id="loading" class="screen show">
+  <h1 class="logo">جمعة أبوي</h1>
+  <div class="bar"><i id="loadBar"></i></div>
+  <p id="loadText">عم نرتّب البيت قبل ما يصحى أبوك…</p>
+</div>
+
+<div id="title" class="screen">
+  <h1 class="logo">جمعة أبوي</h1>
+  <p class="tag">أسبوع كامل ببيت أبوك. خلّص شغلك، دير بالك من الشبشب، وحاول توصل للجمعة.</p>
+  <button class="btn primary" id="btnStart">يلا نبدأ</button>
+  <button class="btn" id="btnHow">كيف ألعب؟</button>
+  <div id="how" hidden>
+    <ul>
+      <li><b>المهام</b> فوق عاليمين: الأصفر شغل البيت، البنفسجي أهدافك السرّية، الأحمر طلبات أبوك المستعجلة.</li>
+      <li><b>أبوك بيشوف وبيسمع.</b> الركض بيطلّع صوت، والتسلل ساكت بس إذا شافك ماشي هيك بيشك فيك.</li>
+      <li><b>كل شي بيعصّبه:</b> ضو شغّال، ثلاجة مفتوحة، وقفة بدون شغل، تلفون، ومرقة قدام التلفزيون (وطّي راسك وامرق!).</li>
+      <li><b>العدّاد</b> إذا عبّى: محاضرة، بعدها مصادرة، بعدها الشبشب… وبالآخر الانفجار.</li>
+      <li><b>ساعد أمك</b> بتغطّي عليك مرة. <b>ارشي أختك</b> بشوكولاتة عشان ما تفسد.</li>
+    </ul>
+  </div>
+  <p class="credit">لعبة من عبدالرحمن · الشخصيات: Microsoft Rocketbox (MIT) · الخامات: Poly Haven (CC0)</p>
+</div>
+
+<div id="pick" class="screen">
+  <h2>مين إنت اليوم؟</h2>
+  <div id="cards"></div>
+  <button class="btn ghost" data-back="title">رجوع</button>
+</div>
+
+<div id="week" class="screen">
+  <h2>أسبوع <span id="weekWho"></span></h2>
+  <div id="days"></div>
+  <div class="row"><button class="btn ghost" data-back="pick">غيّر الشخصية</button></div>
+</div>
+
+<div id="intro" class="screen dim">
+  <div class="card">
+    <div class="kicker" id="introKicker"></div>
+    <h2 id="introTitle"></h2>
+    <p id="introText"></p>
+    <div id="introTasks"></div>
+    <button class="btn primary" id="btnGo">توكّلنا على الله</button>
+  </div>
+</div>
+
+<div id="pause" class="screen dim">
+  <div class="card">
+    <h2>وقفة</h2>
+    <button class="btn primary" id="btnResume">كمّل</button>
+    <button class="btn" id="btnRestart">عيد اليوم</button>
+    <button class="btn" id="btnQuit">رجوع للأسبوع</button>
+    <label class="opt"><input type="checkbox" id="optLow"> جرافيكس أخف (للتلفون)</label>
+    <label class="opt">الصوت <input type="range" id="optVol" min="0" max="100" value="80"></label>
+  </div>
+</div>
+
+<div id="end" class="screen dim">
+  <div class="card">
+    <div class="kicker" id="endKicker"></div>
+    <h2 id="endTitle"></h2>
+    <div id="stars"></div>
+    <div id="endStats"></div>
+    <blockquote id="endDad"><span class="who">أبوك بيقول:</span><span id="endDadText">…</span></blockquote>
+    <div class="row">
+      <button class="btn primary" id="btnNext">اليوم اللي بعده</button>
+      <button class="btn" id="btnAgain">عيد اليوم</button>
+      <button class="btn ghost" id="btnWeek">الأسبوع</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
