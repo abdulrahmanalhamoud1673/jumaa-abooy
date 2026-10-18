@@ -27,7 +27,7 @@ const SELF = {
   sis: { bed: 'bed_sis', bedSide: [8.5, 1.6], desk: 'desk_sis', wardrobe: 'wardrobe_sis', pile: [9.1, 3.4], room: 'sis' },
 };
 const ROLES = { big: { sis: 'snitch', kid: 'chaos' }, kid: { sis: 'snitch', big: 'chaos' }, sis: { big: 'snitch', kid: 'chaos' } };
-const GV = new THREE.Vector3(), GH = new THREE.Vector3();
+const GV = new THREE.Vector3(), GH = new THREE.Vector3(), GX = new THREE.Vector3(), GR = new THREE.Vector3(), GB = new THREE.Vector3(), GS = new THREE.Vector3(), GE = new THREE.Vector3(), GL = new THREE.Vector3();
 function vaseMesh(big) {
   const g = new THREE.Group(), s = big ? 1.7 : 1;
   const body = new THREE.Mesh(new THREE.LatheGeometry([[0.03, 0], [0.09, 0.03], [0.11, 0.14], [0.06, 0.26], [0.04, 0.3], [0.06, 0.33]].map(([x, y]) => new THREE.Vector2(x * s, y * s)), 14), flatMat(0x2c6b8f, { rough: 0.2 }));
@@ -272,7 +272,7 @@ export class Game {
       this.later(18, () => this.removeMess(m));
       return;
     }
-    dad.say('dad.mess', { loud: true }); this.addAnger(m.by === 'player' ? 10 : 7, 'mess'); dad.scold();
+    dad.say(dad.messCat(m.kind), { loud: true }); this.addAnger(m.by === 'player' ? 10 : 7, 'mess'); dad.scold();
     if (m.by !== 'player' && pk === 'big') this.later(2.2, () => dad.say('dad.eldest', { loud: true }));
     if (!this.tasks.some((t) => t.mess === m)) this.tasks.push(this.makeTask({ id: 'clean' + this.now, title: 'نظّف اللي عالأرض!', kind: 'cmd', time: 26, steps: [{ clean: m }] }, { mess: m }));
   }
@@ -293,7 +293,8 @@ export class Game {
     if (a.gift) this.scene.remove(a.gift.mesh);
     const drink = ['tea', 'coffee', 'water'].includes(item);
     const paper = item === 'paper' && !!a.seat;
-    this.scene.add(kind); a.gift = { mesh: kind, until: this.now + (drink ? 16 : 6), drink, sip: 1.4, paper, drop: item === 'water' ? 0.04 : item === 'tea' ? 0.015 : 0 };
+    this.scene.add(kind); a.gift = { mesh: kind, until: this.now + (drink ? 16 : 6), drink, sip: 1.4, paper, drop: item === 'water' ? 0.04 : item === 'tea' ? 0.015 : 0,
+      tall: item === 'water' ? 0.105 : item === 'tea' ? 0.08 : 0.055, rim: item !== 'water' };       // (tea and coffee are hot: held by the rim)
     if (item === 'tea') kind.children[1].visible = false;       // the saucer stays on the tray
     if (paper) a.char.overlay('m_newspaper_arm_idle', { mask: 'arms' });
   }
@@ -310,11 +311,30 @@ export class Game {
         if (g.sip < 0) { const q = Math.sin(Math.min(1, -g.sip / 1.7) * Math.PI); k = q * q * (3 - 2 * q); }
       }
       const f = 0.24 + (0.13 - 0.24) * k, r = 0.2 + (0.08 - 0.2) * k, d = 0.47 + (0.05 - 0.47) * k;
-      if (g.paper || a.rage) { c.handPos('R', g.mesh.position); g.mesh.rotation.set(0, h, 0); } else {
-        c.reachTo('R', GH.set(head.x + (fx * f + rx * r) * s, head.y - d * s, head.z + (fz * f + rz * r) * s));
-        if (g.drink) { c.grip = 1; c.gripPos(g.mesh.position, 0.085, 0.038, g.drop); g.mesh.rotation.set(-0.7 * k, h, 0, 'YXZ'); } else { c.handPos('R', g.mesh.position); g.mesh.position.y += 0.02; g.mesh.position.x += fx * 0.08; g.mesh.position.z += fz * 0.08; g.mesh.rotation.set(0, h, 0); }
+      if (g.paper || a.rage) { c.handPos('R', g.mesh.position); g.mesh.rotation.set(0, h, 0); } else if (g.drink) {
+        // a sip: the rim comes to the lower lip and the glass tips up towards the face; the hand stays round it
+        // (round its middle for water; a hot tea glass or a finjan by the rim, in the fingertips)
+        c.grip = 1;
+        const tilt = 1.05 * k, sa = Math.sin(tilt), ca = Math.cos(tilt), H = g.tall;
+        const ax = GX.set(-fx * sa, ca, -fz * sa);
+        // the lower lip: under the eyes and a touch in front of them
+        const B = c.bones, eyes = B.LEye ? B.LEye.getWorldPosition(GE).add(B.REye.getWorldPosition(GL)).multiplyScalar(0.5) : GE.set(head.x + fx * 0.09, head.y + 0.03, head.z + fz * 0.09);
+        const lip = GR.set(eyes.x + fx * 0.03 * s, eyes.y - 0.085 * s, eyes.z + fz * 0.03 * s);
+        g.k = k;
+        if (k > 0.15) c.look = (g.lookAt || (g.lookAt = new THREE.Vector3())).set(eyes.x + fx * 2, eyes.y + 1.1 * k, eyes.z + fz * 2);      // chin up to drink
+        const base = GB.copy(lip).addScaledVector(ax, -H);
+        const sipHand = GS.copy(base).addScaledVector(ax, H * (g.rim ? 0.8 : 0.45));
+        sipHand.x += (rx * 0.06 + fx * 0.01) * s; sipHand.z += (rz * 0.06 + fz * 0.01) * s; sipHand.y -= 0.06 * s;
+        c.reachTo('R', GH.set(head.x + (fx * 0.24 + rx * 0.2) * s, head.y - 0.47 * s, head.z + (fz * 0.24 + rz * 0.2) * s).lerp(sipHand, k));
+        c.reach.R.pole = k > 0.05 ? [-0.2 - 0.4 * (1 - k), -1, 0.25 * k] : null;      // the elbow stays down and in front while he drinks
+        c.gripPos(g.mesh.position, 0.085, 0.038, g.drop);
+        if (k > 0) g.mesh.position.lerp(base, k);
+        g.mesh.rotation.set(-tilt, h, 0, 'YXZ');
+      } else {
+        c.reachTo('R', GH.set(head.x + (fx * f + rx * r) * s, head.y - d * s, head.z + (fz * f + rz * r) * s), 0.72);      // the remote, the glasses, the charger: in his fingers
+        { c.handPos('R', g.mesh.position); g.mesh.position.y += 0.02; g.mesh.position.x += fx * 0.08; g.mesh.position.z += fz * 0.08; g.mesh.rotation.set(0, h, 0); }
       }
-      if (this.now > g.until || a.rage) { this.scene.remove(g.mesh); a.gift = null; c.reachTo('R', null); c.grip = 0; c.overlay(null); }
+      if (this.now > g.until || a.rage) { this.scene.remove(g.mesh); a.gift = null; c.reachTo('R', null); c.reach.R.pole = null; c.grip = 0; c.overlay(null); }
     }
   }
   // The tray you served from is set down on the nearest table, not into thin air.
@@ -559,7 +579,7 @@ export class Game {
     if (p.char.visible) p.setPose('m_crouch_idle');
     if (p.phoneOut) p.phone(false);
     sfx.door({ x: h.x, y: 1, z: h.z });
-    if (p.hideSeen && this.dad.calm) { this.dad.cd.found = 0; this.later(0.6, () => { if (p.hidden) { this.dad.say('dad.found', { loud: true }); this.addAnger(RULE_FOUND, 'found'); this.unhide(true); } }); }
+    if (p.hideSeen && this.dad.calm) { this.dad.cd.found = 0; this.later(0.6, () => { if (p.hidden) { this.dad.say(this.dad.foundCat(), { loud: true }); this.addAnger(RULE_FOUND, 'found'); this.unhide(true); } }); }
   }
   unhide() {
     const p = this.player; if (!p.hide) return;

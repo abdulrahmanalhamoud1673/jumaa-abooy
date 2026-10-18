@@ -95,6 +95,19 @@ export function teaGlass(level = 1) {
   g.userData.level(level);
   return g;
 }
+// A shawarma roll from the order: the bread, its paper sleeve, the filling showing where it has been bitten. Origin at the
+// bottom end, along +Y. userData.bite() takes a bite off the top.
+export function shawarma() {
+  const bread = mat(0xd9ae6e, { rough: 0.85 }), paper = mat(0xf1ede2, { rough: 0.95 }), meat = mat(0x8a4b22, { rough: 0.75 });
+  const top = cyl(0.023, 0.025, 0.1, bread, 0, 0.13, 0, 14), sleeve = cyl(0.0285, 0.0265, 0.12, paper, 0, 0.06, 0, 14);
+  const cap = group(cyl(0.021, 0.021, 0.006, meat, 0, 0, 0, 14), rbox(0.012, 0.006, 0.006, 0.002, mat(0x6f9a2e), 0.006, 0.003, 0.004), rbox(0.009, 0.006, 0.008, 0.002, mat(0xc8402b), -0.007, 0.003, -0.005), rbox(0.01, 0.005, 0.006, 0.002, mat(0xf3eedc), 0.0, 0.003, -0.01));
+  cap.position.y = 0.18;
+  const g = group(top, sleeve, cap);
+  let left = 1;
+  g.userData.axis = new THREE.Vector3(0, 1, 0); g.userData.hold = -0.055;
+  g.userData.bite = () => { left = Math.max(0.2, left - 0.22); top.scale.y = left; top.position.y = 0.08 + 0.05 * left; cap.position.y = 0.08 + 0.1 * left; };
+  return g;
+}
 export function waterGlass(level = 1) {
   const g = group(lathe([[0, 0], [0.028, 0], [0.034, 0.105], [0.032, 0.105], [0.0265, 0.005], [0, 0.005]], MAT.glass, 16));
   const w = cyl(0.03, 0.026, 0.085, MAT.water, 0, 0.048, 0, 14); g.add(w);
@@ -303,7 +316,15 @@ const BUILD = {
   trash: trashBag,
   talabat: talabatBag,
   tomato() { const g = group(lathe([[0, 0], [0.05, 0], [0.085, 0.045], [0.09, 0.046], [0.05, 0.006], [0, 0.006]], MAT.porcelain, 16)); for (const [x, z, y] of [[-0.03, 0, 0.05], [0.035, 0.015, 0.05], [0, -0.035, 0.05], [0.005, 0.01, 0.1]]) g.add(ball(0.038, mat(0xd3261a, { rough: 0.35 }), x, y, z, 0.9)); return g; },
-  chocolate() { return group(rbox(0.07, 0.014, 0.15, 0.004, mat(0x4a2410, { rough: 0.5 }), 0, 0.008, 0), rbox(0.074, 0.016, 0.09, 0.004, mat(0xc4212b, { rough: 0.4 }), 0, 0.008, 0.032), rbox(0.05, 0.017, 0.03, 0.003, MAT.brass, 0, 0.008, 0.035)); },
+  chocolate() {
+    const bar = rbox(0.07, 0.014, 0.15, 0.004, mat(0x4a2410, { rough: 0.5 }), 0, 0.008, 0);
+    const g = group(bar, rbox(0.074, 0.016, 0.09, 0.004, mat(0xc4212b, { rough: 0.4 }), 0, 0.008, 0.032), rbox(0.05, 0.017, 0.03, 0.003, MAT.brass, 0, 0.008, 0.035));
+    // eaten from the open end (-Z), held by the wrapper
+    let left = 1;
+    g.userData.axis = new THREE.Vector3(0, 0, -1); g.userData.hold = 0.035;
+    g.userData.bite = () => { left = Math.max(0.35, left - 0.16); bar.scale.z = left; bar.position.z = 0.075 * (1 - left); };
+    return g;
+  },
   remote() { const g = group(rbox(0.046, 0.02, 0.17, 0.008, MAT.dark, 0, 0.01, 0), cyl(0.007, 0.007, 0.004, mat(0xd22b2b), 0.012, 0.021, -0.066, 8)); for (let r = 0; r < 5; r++) for (let c = 0; c < 3; c++) g.add(rbox(0.008, 0.004, 0.008, 0.001, mat(r === 1 ? 0x8a8f99 : 0x555a63), -0.012 + c * 0.012, 0.021, -0.04 + r * 0.024)); return g; },
   glasses() { const g = group(); for (const x of [-0.03, 0.03]) { const r = mesh(new THREE.TorusGeometry(0.024, 0.003, 6, 18), MAT.dark, x, 0.024, 0); g.add(r); const l = mesh(new THREE.CircleGeometry(0.022, 16), MAT.glass, x, 0.024, 0); l.castShadow = false; g.add(l); g.add(tube([[x * 1.8, 0.03, 0], [x * 1.9, 0.03, -0.06], [x * 1.85, 0.018, -0.12]], 0.002, MAT.dark, 6)); } g.add(tube([[-0.008, 0.03, 0], [0, 0.036, 0], [0.008, 0.03, 0]], 0.0025, MAT.dark, 4)); return g; },
   charger() { return group(rbox(0.04, 0.03, 0.045, 0.006, MAT.white, 0, 0.015, 0), cyl(0.003, 0.003, 0.016, MAT.steel, -0.008, 0.015, -0.03, 6), cyl(0.003, 0.003, 0.016, MAT.steel, 0.008, 0.015, -0.03, 6), tube([[0, 0.012, 0.022], [0.03, 0.006, 0.06], [0.07, 0.006, 0.03], [0.06, 0.006, -0.03], [0.1, 0.006, -0.02]], 0.003, MAT.white, 16), rbox(0.012, 0.007, 0.022, 0.002, MAT.white, 0.108, 0.006, -0.018)); },

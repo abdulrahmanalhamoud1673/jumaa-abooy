@@ -58,13 +58,20 @@ export function preload(prefix) {
 }
 
 // Pick a variant of a line category that wasn't just used. -> { id, text, has (audio exists), dur }
+// Every line of a group is said once before any of them comes round again, and that is remembered between games
+// (so the first thing he shouts today is not the first thing he shouted yesterday).
+let decks = {};
+try { decks = JSON.parse(localStorage.getItem('jumaa.said') || '{}') || {}; } catch { decks = {}; }
 export function pickLine(cat) {
   const entry = A.lines.lines[cat];
   if (!entry) return null;
-  const n = entry.t.length;
-  let i = Math.floor(Math.random() * n);
-  for (let k = 0; k < n; k++) { const j = (i + k) % n; if (j !== lastUsed[cat] && A.voice[`${cat}.${j}`]) { i = j; break; } if (k === n - 1 && n > 1 && i === lastUsed[cat]) i = (i + 1) % n; }
-  lastUsed[cat] = i;
+  const n = entry.t.length, all = [...Array(n).keys()], voiced = all.filter((j) => A.voice[`${cat}.${j}`]), pool = voiced.length ? voiced : all;
+  let said = Array.isArray(decks[cat]) ? decks[cat].filter((j) => j < n) : [];
+  let left = pool.filter((j) => !said.includes(j));
+  if (!left.length) { const last = lastUsed[cat] ?? said[said.length - 1]; said = last != null && pool.length > 1 ? [last] : []; left = pool.filter((j) => !said.includes(j)); }
+  const i = left[Math.floor(Math.random() * left.length)];
+  said.push(i); decks[cat] = said; lastUsed[cat] = i;
+  try { localStorage.setItem('jumaa.said', JSON.stringify(decks)); } catch { /* private window: forget */ }
   const id = `${cat}.${i}`, v = A.voice[id];
   return { id, text: entry.t[i], who: entry.who, style: entry.style, has: !!v, dur: v ? v.d : Math.max(1.2, entry.t[i].length * 0.075) };
 }

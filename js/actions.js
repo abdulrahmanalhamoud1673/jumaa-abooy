@@ -39,7 +39,7 @@ export const ACT = {
         S.fx.stream('water', tap, T1.copy(g).setY(g.y + 0.04), 1, 0.1); C.glass.userData.level(sm(seg(u, 0.16, 0.9))); S.setBottle(C.level - dt * 0.012);
         if (every(x, 'g', dt, 0.55)) { sfx.glug(); const b = S.wp(C.g, C.bottle); for (let i = 0; i < 6; i++) S.fx.emit('bubble', { x: b.x + (Math.random() - 0.5) * 0.14, y: b.y - 0.06, z: b.z + (Math.random() - 0.5) * 0.14 }, { x: 0, y: 0.5, z: 0 }, 0.1); }
       }
-      S.hands(x, T1.copy(g).setY(g.y + 0.055), on || u < 0.16 ? S.wp(C.lever, V(0, 0.01, 0.03)) : null);
+      S.hands(x, T1.copy(g).setY(g.y + 0.055), on || u < 0.16 ? S.wp(C.lever, V(0, 0.01, 0.03)) : null, 0.5, 0.35);
     },
     end(S, x, done) { const C = S.C; C.pour.visible = false; C.glass.visible = false; C.lever.rotation.x = 0; C.glass.position.copy(C.cup); if (!done) C.glass.userData.level(0); },
   },
@@ -51,14 +51,14 @@ export const ACT = {
     tick(S, x, u, dt, fx) {
       const K = S.K, pot = K.pot, kind = fx.name === 'makeCoffee' ? 'coffee' : 'tea';
       const spout = () => S.wp(pot, pot.userData.spout), handle = () => S.wp(pot, pot.userData.handle);
-      if (u < 0.08) { S.hands(x, null, V(15.36, 0.86, 8.05)); if (u > 0.04 && once(x, 'lit')) { K.flame.visible = true; sfx.click(); } return; }       // the knob
+      if (u < 0.08) { S.hands(x, null, V(15.36, 0.86, 8.05), 0.6, 0.45); if (u > 0.04 && once(x, 'lit')) { K.flame.visible = true; sfx.click(); } return; }       // the knob
       K.flame.visible = u < 0.42;
       if (u < 0.42) {
         pot.position.copy(K.home); pot.rotation.set(0, -Math.PI / 2, 0);
         if (every(x, 's', dt, 0.13 - u * 0.2)) S.fx.emit('steam', spout(), { x: 0, y: 0.5, z: 0.15 }, 0.15, 0.6 + u * 2.4);
         if (u > 0.16 && once(x, 'b')) sfx.boil({ x: 15.5, y: 1, z: 8.2 });
         if (u > 0.32 && kind === 'tea' && once(x, 'w')) sfx.whistle({ x: 15.5, y: 1, z: 8.2 });
-        S.hands(x, u > 0.34 ? handle() : null, null);
+        S.hands(x, u > 0.34 ? handle() : null, null, 0.92, 0.6);
         return;
       }
       if (u < 0.94) {
@@ -70,7 +70,7 @@ export const ACT = {
         if (tilt > 0.6) { S.fx.stream(kind, spout(), T1.copy(gw).setY(gw.y + 0.03), 1, 0.11); K.glasses[i].userData.level(seg(f, 0.25, 0.78)); if (Math.random() < 0.3) S.fx.emit('steam', gw, { x: 0, y: 0.3, z: 0 }, 0.08, 0.5); }
         if (f > 0.8) K.glasses[i].userData.level(1);
       } else { pot.position.lerp(K.home, 0.25); pot.rotation.z *= 0.7; }
-      S.hands(x, handle(), S.wp(K.tray, V(-0.21, 0.02, 0.02)));
+      S.hands(x, handle(), S.wp(K.tray, V(-0.21, 0.02, 0.02)), 0.92, 0.35);
     },
     end(S) { const K = S.K; K.flame.visible = false; K.pot.position.copy(K.home); K.pot.rotation.set(0, -Math.PI / 2, 0); K.tray.visible = false; },
   },
@@ -93,13 +93,13 @@ export const ACT = {
         if (Math.sin(x.d.ph) * Math.sin(x.d.ph - dt * 15) < 0) sfx.chop();
         // tip stays near the board, heel does the work
         k.position.set(cutX - 0.004, 0.034 + up * 0.07, -0.1); k.rotation.set(0, -Math.PI / 2, -up * 0.36);
-        S.hands(x, S.wp(B.g, V(cutX - 0.01, 0.065 + up * 0.07, -0.165)), S.wp(B.g, V(B.veg.position.x + 0.012, 0.105, 0.005)));
+        S.hands(x, S.wp(B.g, V(cutX - 0.01, 0.065 + up * 0.07, -0.165)), S.wp(B.g, V(B.veg.position.x + 0.012, 0.105, 0.005)), 0.92, 0.55);
       } else {            // blade flat, sweep the lot into the bowl
         const f = seg(u, 0.84, 1), bx = lerp(0.03, -0.2, sm(f));
         k.position.set(bx, 0.04, -0.07); k.rotation.set(Math.PI / 2 - 0.3, -Math.PI / 2, 0);
         B.slices.forEach((s, i) => { const kk = seg(f, 0.15 + i * 0.03, 0.6 + i * 0.03); s.position.lerpVectors(s.userData.home, T1.set(-0.3 + (i % 3 - 1) * 0.025, 0.04 + (i % 4) * 0.008, 0.02 + (i % 2) * 0.02), sm(kk)); s.position.y += Math.sin(Math.PI * kk) * 0.03; s.rotation.z = lerp(1.15, 0.2 + i, kk); });
         if (once(x, 'scr')) sfx.scrub();
-        S.hands(x, S.wp(B.g, V(bx, 0.07, -0.14)), S.wp(B.bowl, V(0.06, 0.06, 0)));
+        S.hands(x, S.wp(B.g, V(bx, 0.07, -0.14)), S.wp(B.bowl, V(0.06, 0.06, 0)), 0.85, 0.5);
       }
       if (fx.veg === 'onion' && u > 0.5 && once(x, 'cry')) S.g.toast('دمّعت عيونك من البصل 😢', '');
     },
@@ -127,7 +127,7 @@ export const ACT = {
       } else if (f < 0.84) { pl.position.copy(rinse); pl.position.y += Math.sin((f - 0.76) / 0.08 * Math.PI * 3) * 0.035; pl.rotation.set(1.2, 0, 0); if (Math.random() < 0.5) S.fx.emit('splash', pl.position, { x: 0, y: -0.2, z: 0 }, 0.9); }      // shake it off
       else { const k = (f - 0.84) / 0.16; pl.position.copy(arc(rinse, slot, k, 0.08)); pl.rotation.set(1.2 * (1 - k), 0, (Math.PI / 2 - 0.22) * sm(k)); if (k > 0.9 && x.d.i !== i) { x.d.i = i; sfx.clink(); } }
       if (spg) D.sponge.position.copy(spg); else D.sponge.position.lerp(T1.set(D.basin.x - 0.16, TOP + 0.05, D.basin.z + 0.12), 0.2);
-      S.hands(x, spg ? V(spg.x, spg.y + 0.04, spg.z - 0.02) : V(pl.position.x - 0.08, pl.position.y + 0.03, pl.position.z - 0.05), V(pl.position.x + 0.09, pl.position.y + 0.02, pl.position.z - 0.04));
+      S.hands(x, spg ? V(spg.x, spg.y + 0.04, spg.z - 0.02) : V(pl.position.x - 0.08, pl.position.y + 0.03, pl.position.z - 0.05), V(pl.position.x + 0.09, pl.position.y + 0.02, pl.position.z - 0.04), 0.75, 0.5);
     },
     end(S, x, done) { S.D.pool.visible = false; if (done) { S.D.plates.forEach((p, i) => S.rackPlate(p, S.D.plates.length - 1 - i)); S.fx.burst('spark', S.D.rack, 8, 0.5, 0.3); } else S.resetDishes(true); },
   },
@@ -144,13 +144,13 @@ export const ACT = {
         const k = (u / 0.74 * 3) % 1, upk = sm(seg(k, 0.35, 0.6)) * (1 - sm(seg(k, 0.85, 1)));
         x.p.workLean = lerp(0.5, 0.2, upk);                                   // down to the basin, up with the water
         const t = arc(low, face, upk, 0);
-        S.hands(x, V(t.x + r.x * 0.045, t.y, t.z + r.z * 0.045), V(t.x - r.x * 0.045, t.y, t.z - r.z * 0.045));
+        S.hands(x, V(t.x + r.x * 0.045, t.y, t.z + r.z * 0.045), V(t.x - r.x * 0.045, t.y, t.z - r.z * 0.045), 0.35, 0.35);
         if (upk > 0.95 && !x.d.m) { x.d.m = 1; S.fx.burst('splash', face, 9, 1.2, 0.2); sfx.splash(null); } if (upk < 0.3) x.d.m = 0;
       } else {
         x.p.workLean = 0.1; const k = seg(u, 0.74, 1), rub = Math.sin(x.t * 14) * 0.03;
         const t = k < 0.2 ? arc(x.d.home, face, k / 0.2, 0.1) : k > 0.85 ? arc(face, x.d.home, (k - 0.85) / 0.15, 0.1) : V(face.x + r.x * rub, face.y + 0.12 + rub, face.z + r.z * rub);
         S.towel.position.copy(t); if (once(x, 'tw')) sfx.flap();
-        S.hands(x, V(t.x + r.x * 0.08, t.y - 0.12, t.z + r.z * 0.08), V(t.x - r.x * 0.08, t.y - 0.12, t.z - r.z * 0.08));
+        S.hands(x, V(t.x + r.x * 0.08, t.y - 0.12, t.z + r.z * 0.08), V(t.x - r.x * 0.08, t.y - 0.12, t.z - r.z * 0.08), 0.3, 0.3);
       }
     },
     end(S, x) { S.towel.position.copy(x.d.home); },
@@ -179,14 +179,14 @@ export const ACT = {
         S.setBed(1 - sm(f) * 0.72, flick * 0.14, f * 9);
         x.p.workLean = 0.42 - flick * 0.12;
         const y = 0.66 + flick * 0.22;
-        S.hands(x, V(edge, y, M.bed.z + 0.75), V(edge, y, M.bed.z + 0.05));
+        S.hands(x, V(edge, y, M.bed.z + 0.75), V(edge, y, M.bed.z + 0.05), 0.85, 0.85);
         if (once(x, 'f1')) sfx.flap(); if (f > 0.55 && once(x, 'f2')) { sfx.flap(); S.fx.burst('dust', V(M.bed.x, 0.75, M.bed.z + 0.4), 4, 0.6, 0.25, 0.6); }
       } else if (u < 0.76) {     // long strokes with the flat of the hand, foot to head
         const f = (u - 0.42) / 0.34, st = (f * 3) % 1;
         S.setBed(0.28 * (1 - sm(f)), 0, 0);
         x.p.workLean = 0.52;
         const z = M.bed.z + lerp(0.95, -0.2, sm(st)), xx = M.bed.x + side * lerp(0.3, -0.05, Math.floor(f * 3) / 2);
-        S.hands(x, V(xx, 0.635, z), V(xx + side * 0.05, 0.64, z + 0.24));
+        S.hands(x, V(xx, 0.635, z), V(xx + side * 0.05, 0.64, z + 0.24), 0.4, 0.4);
         if (st < 0.1 && every(x, 'sw', dt, 0.3)) sfx.sweep(null);
       } else {                   // the pillow: pick it up, two pats, put it at the head
         const f = (u - 0.76) / 0.24; S.setBed(0, 0, 0); M.held = true;
@@ -195,7 +195,7 @@ export const ACT = {
         const pos = f < 0.35 ? arc(from, mid, f / 0.35, 0.05) : f < 0.7 ? mid : arc(mid, home, (f - 0.7) / 0.3, 0.08);
         M.pillow.position.copy(pos); M.pillow.rotation.set(0, lerp(M.pillow.rotation.y, 0, 0.15), 0); M.pillow.scale.set(1 - pat * 0.12, 1 + pat * 0.25, 1);
         x.p.workLean = f > 0.7 ? 0.45 : 0.15;
-        S.hands(x, V(pos.x, pos.y + 0.02, pos.z + 0.17 - pat * 0.05), V(pos.x, pos.y + 0.02, pos.z - 0.17 + pat * 0.05));
+        S.hands(x, V(pos.x, pos.y + 0.02, pos.z + 0.17 - pat * 0.05), V(pos.x, pos.y + 0.02, pos.z - 0.17 + pat * 0.05), 0.3, 0.3);
         if (pat > 0.9 && every(x, 'pt', dt, 0.15)) sfx.thud({ x: pos.x, y: 1, z: pos.z });
       }
     },
@@ -214,7 +214,7 @@ export const ACT = {
       // reach, pinch, carry over, drop
       const hand = f < 0.45 ? arc(bk, at, f / 0.45, 0.12) : arc(at, bk, (f - 0.45) / 0.55, 0.22);
       if (f >= 0.45) { c.position.copy(pl.g.worldToLocal(hand.clone())); c.position.y -= 0.06; c.rotation.set(-0.4, f * 6, 0.5); c.scale.setScalar(lerp(0.7, 0.5, f)); if (x.d.n !== i) { x.d.n = i; sfx.flap(); } }
-      S.hands(x, hand, f > 0.6 ? V(bk.x, 0.34, bk.z + 0.2) : null);
+      S.hands(x, hand, f > 0.6 ? V(bk.x, 0.34, bk.z + 0.2) : null, 0.78, 0.6);
       S.look(x, hand);
     },
     end(S, x, done) { const pl = S.pile; if (done) pl.g.visible = false; else { pl.basket.userData.fill(0); pl.clothes.forEach((c) => { c.visible = true; c.position.copy(c.userData.home); c.rotation.set(-Math.PI / 2, 0, 1); c.scale.setScalar(0.7); }); } },
@@ -226,18 +226,18 @@ export const ACT = {
     begin(S, x) { S.W.on = 0; x.d.g = S.ground(x, basketBeside(x)); S.focus(x.p, S.W.mouth); squat(x); x.d.n = 0; },
     tick(S, x, u) {
       const W = S.W, n = 5, from = V(x.d.g.x, 0.36, x.d.g.z), mouth = W.mouth;
-      if (u < 0.1) { W.open = 1; if (once(x, 'o')) sfx.door({ x: 6.3, y: 0.5, z: 2.4 }); S.hands(x, null, S.wp(W.door, V(0.36, 0, 0.05))); return; }
+      if (u < 0.1) { W.open = 1; if (once(x, 'o')) sfx.door({ x: 6.3, y: 0.5, z: 2.4 }); S.hands(x, null, S.wp(W.door, V(0.36, 0, 0.05)), 0.6, 0.72); return; }
       if (u < 0.8) {
         const [i, f] = split(u, n, 0.1, 0.8);
         if (!x.d.gm || x.d.gi !== i) { if (x.d.gm) S.root.remove(x.d.gm); x.d.gm = P.randomGarment(i + 1); x.d.gm.scale.setScalar(0.5); S.root.add(x.d.gm); x.d.gi = i; sfx.flap(); if (x.p.carrying) x.p.carrying.mesh.userData.fill(1 - (i + 1) / n); }
         const hand = f < 0.6 ? arc(from, mouth, f / 0.6, 0.18) : arc(mouth, from, (f - 0.6) / 0.4, 0.1);
         x.d.gm.visible = f < 0.6; x.d.gm.position.copy(hand); x.d.gm.position.y -= 0.08; x.d.gm.rotation.set(f * 4, f * 3, 0.4);
-        S.hands(x, hand, null); S.look(x, hand);
+        S.hands(x, hand, null, 0.78, 0.6); S.look(x, hand);
         return;
       }
       if (x.d.gm) { S.root.remove(x.d.gm); x.d.gm = null; }
-      if (u < 0.9) { W.open = 0; if (once(x, 'c')) sfx.doorShut({ x: 6.3, y: 0.5, z: 2.4 }); S.hands(x, null, V(mouth.x - 0.02, 0.5, mouth.z + 0.1)); return; }
-      S.hands(x, S.wp(W.g, V(0.17, 0.78, 0.33)), null); if (once(x, 'k')) { sfx.click(); W.on = 22; }                 // the dial
+      if (u < 0.9) { W.open = 0; if (once(x, 'c')) sfx.doorShut({ x: 6.3, y: 0.5, z: 2.4 }); S.hands(x, null, V(mouth.x - 0.02, 0.5, mouth.z + 0.1), 0.6, 0.3); return; }
+      S.hands(x, S.wp(W.g, V(0.17, 0.78, 0.33)), null, 0.5, 0.6); if (once(x, 'k')) { sfx.click(); W.on = 22; }                 // the dial
     },
     end(S, x, done) { if (x.d.gm) S.root.remove(x.d.gm); S.W.open = 0; if (!done) { S.W.on = 0; if (x.p.carrying) x.p.carrying.mesh.userData.fill(1); } },
   },
@@ -250,7 +250,7 @@ export const ACT = {
       const hand = f < 0.4 ? arc(to, mouth, f / 0.4, 0.1) : arc(mouth, to, (f - 0.4) / 0.6, 0.2);
       x.d.gm.visible = f >= 0.4; x.d.gm.position.copy(hand); x.d.gm.position.y -= 0.08; x.d.gm.rotation.set(f * 4, f * 3, 0.4);
       if (f >= 0.4 && x.d.fl !== i) { x.d.fl = i; sfx.flap(); S.fx.burst('splash', mouth, 3, 0.5, 0.2); }
-      S.hands(x, hand, null); S.look(x, hand);
+      S.hands(x, hand, null, 0.78, 0.6); S.look(x, hand);
     },
     end(S, x) { if (x.d.gm) S.root.remove(x.d.gm); S.W.open = 0; S.root.remove(x.d.b); x.d.b = null; sfx.doorShut({ x: 6.3, y: 0.5, z: 2.4 }); },
   },
@@ -292,7 +292,7 @@ export const ACT = {
         if (kk > 0.6 && !pegs[which].visible) { pegs[which].visible = true; sfx.peg(); }
         Lh = V(pegs[1].position.x + (which ? -0.12 : 0), L.y - 0.03, L.z - 0.04);
       }
-      S.hands(x, R, Lh); S.look(x, gm.visible ? gm.position : bk);
+      S.hands(x, R, Lh, 0.72, 0.72); S.look(x, gm.visible ? gm.position : bk);
       if (p.focus) p.focus.pos.set(sx, 1.5, L.z);
     },
     end(S, x, done) {
@@ -330,7 +330,7 @@ export const ACT = {
         R = V(h.x - 0.07, h.y, h.z); Lh = V(h.x + 0.07, h.y, h.z);
         if (k > 0.92 && gm.parent) { S.root.remove(gm); x.d.b.userData.fill((i + 1) / n); }
       }
-      S.hands(x, R, Lh); S.look(x, gm.parent ? gm.position : bk);
+      S.hands(x, R, Lh, 0.72, 0.72); S.look(x, gm.parent ? gm.position : bk);
       if (p.focus) p.focus.pos.set(sx, 1.5, L.z);
     },
     end(S, x, done) { if (x.d.gm && x.d.gm.parent) S.root.remove(x.d.gm); for (const q of x.d.pegs || []) if (q.parent) S.root.remove(q); S.root.remove(x.d.b); x.d.b = null; if (!done) for (const [i, kind, color] of x.d.took) S.hangAt(i, P.garment(kind, color)); },
@@ -351,7 +351,7 @@ export const ACT = {
       if (x.d.toys) {                  // the whole armful goes on the lower shelf
         const it = x.p.carrying, to = slot(0.47), pos = u < 0.25 ? x.d.g : arc(x.d.g, to, seg(u, 0.25, 0.75), 0.1);
         it.grounded = pos.clone(); it.custom = true; it.hide = u > 0.9; x.p.workLean = 0.4 * sm(seg(u, 0.3, 0.7)) * (1 - seg(u, 0.8, 0.95));
-        S.hands(x, u < 0.85 ? V(pos.x + r.x * 0.1, pos.y + 0.06, pos.z + r.z * 0.1) : null, u < 0.85 ? V(pos.x - r.x * 0.1, pos.y + 0.06, pos.z - r.z * 0.1) : null); S.look(x, pos); return;
+        S.hands(x, u < 0.85 ? V(pos.x + r.x * 0.1, pos.y + 0.06, pos.z + r.z * 0.1) : null, u < 0.85 ? V(pos.x - r.x * 0.1, pos.y + 0.06, pos.z - r.z * 0.1) : null, 0.4, 0.4); S.look(x, pos); return;
       }
       const n = 4, [i, k] = split(u, n, 0.08, 0.92), from = V(x.d.g.x, 0.42, x.d.g.z), to = slot(W.shelfY + i * 0.047);
       if (x.d.i !== i) {
@@ -366,7 +366,7 @@ export const ACT = {
       else if (k < 0.48) { const q = (k - 0.22) / 0.26; h = arc(from, chest, q, 0.06); x.p.workLean = 0.6 * (1 - sm(q)); gm.visible = true; fold.visible = false; gm.position.set(h.x, h.y + 0.12, h.z); gm.rotation.set(0, c.heading, 0); wide = 0.16; if (once(x, 'f' + i)) sfx.flap(); }   // held up by the shoulders
       else if (k < 0.66) { const q = (k - 0.48) / 0.18; h = chest; x.p.workLean = 0; gm.visible = q < 0.6; fold.visible = !gm.visible; gm.scale.set(0.6 * (1 - 0.5 * sm(q)), 0.6 * (1 - 0.6 * sm(q)), 0.6); gm.position.set(h.x, h.y + 0.12 - 0.08 * q, h.z); fold.position.copy(h); wide = lerp(0.16, 0.1, q); }   // folded in
       else { const q = (k - 0.66) / 0.34; h = arc(chest, to, q, 0.05); gm.visible = false; fold.visible = true; fold.position.copy(h); wide = 0.1; x.p.workLean = 0.15 * Math.sin(q * Math.PI); }   // and onto the pile
-      S.hands(x, V(h.x + r.x * wide, h.y + 0.02, h.z + r.z * wide), V(h.x - r.x * wide, h.y + 0.02, h.z - r.z * wide)); S.look(x, h);
+      S.hands(x, V(h.x + r.x * wide, h.y + 0.02, h.z + r.z * wide), V(h.x - r.x * wide, h.y + 0.02, h.z - r.z * wide), 0.4, 0.4); S.look(x, h);
     },
     end(S, x) { for (const m of x.d.pile || []) S.root.remove(m); x.d.W.set(0); },
   },
@@ -380,15 +380,15 @@ export const ACT = {
       N.lid.rotation.x = -1.35 * lid;
       const neck = () => S.wp(N.bag, V(0, 0.42, 0));
       S.look(x, neck());
-      if (u < 0.12) { S.hands(x, null, S.wp(N.lid, V(0, 0.03, 0.3))); return; }                                                    // lid up
-      if (u < 0.42) { const k = (u - 0.12) / 0.3; N.bag.position.y = 0.06 + 0.08 * k; const w = neck(), r = 0.13 * (1 - sm(k)); S.hands(x, V(w.x - r, w.y, w.z), V(w.x + r, w.y, w.z)); if (once(x, 'r')) sfx.flap(); return; }       // gather the rim in
-      if (u < 0.7) { const k = (u - 0.42) / 0.28, a = k * Math.PI * 4, w = neck(); N.bag.rotation.y = a; S.hands(x, V(w.x + Math.cos(a) * 0.05, w.y + 0.03, w.z + Math.sin(a) * 0.05), V(w.x - Math.cos(a) * 0.05, w.y - 0.02, w.z - Math.sin(a) * 0.05)); if (k > 0.5 && once(x, 'k')) sfx.flap(); return; }  // twist + knot
+      if (u < 0.12) { S.hands(x, null, S.wp(N.lid, V(0, 0.03, 0.3)), 0.6, 0.5); return; }                                                    // lid up
+      if (u < 0.42) { const k = (u - 0.12) / 0.3; N.bag.position.y = 0.06 + 0.08 * k; const w = neck(), r = 0.13 * (1 - sm(k)); S.hands(x, V(w.x - r, w.y, w.z), V(w.x + r, w.y, w.z), 0.9, 0.9); if (once(x, 'r')) sfx.flap(); return; }       // gather the rim in
+      if (u < 0.7) { const k = (u - 0.42) / 0.28, a = k * Math.PI * 4, w = neck(); N.bag.rotation.y = a; S.hands(x, V(w.x + Math.cos(a) * 0.05, w.y + 0.03, w.z + Math.sin(a) * 0.05), V(w.x - Math.cos(a) * 0.05, w.y - 0.02, w.z - Math.sin(a) * 0.05), 0.9, 0.9); if (k > 0.5 && once(x, 'k')) sfx.flap(); return; }  // twist + knot
       // stand up, lifting it clear of the bin and round to your side
       if (once(x, 'up')) x.p.setPose('m_idle_neutral_01', { fade: 0.3 });
       const k = (u - 0.7) / 0.3, r = rgt(c), f = fwd(c), s = c.height / 1.72; x.p.workLean = 0.25 * (1 - sm(k));
       const home = S.wp(N.k).setY(0.14), top = S.wp(N.k).setY(0.5), side = V(c.pos.x + (f.x * 0.04 + r.x * 0.3) * s, 0.36 * s, c.pos.z + (f.z * 0.04 + r.z * 0.3) * s);
       N.bag.position.copy(N.k.worldToLocal(k < 0.45 ? arc(home, top, k / 0.45, 0) : arc(top, side, (k - 0.45) / 0.55, 0.08)));
-      S.hands(x, neck(), null);
+      S.hands(x, neck(), null, 0.95, 0.6);
     },
     end(S) { const N = S.N; N.bag.visible = false; N.bag.position.set(0, 0.06, 0); N.lid.rotation.x = 0; },
   },
@@ -412,7 +412,7 @@ export const ACT = {
         if (u > 0.76 && once(x, 'th')) { sfx.thud({ x: 21.4, y: 0.5, z: 8 }); it.mesh.visible = false; }
       }
       if (u > 0.93 && once(x, 'sl')) sfx.doorShut({ x: 21.4, y: 1, z: 8 });
-      S.hands(x, R, u > 0.04 && u < 0.9 ? lidHand : null);
+      S.hands(x, R, u > 0.04 && u < 0.9 ? lidHand : null, 0.95, 0.6);
     },
     end(S, x) { S.N.ylid.rotation.z = 0; if (x.p.carrying) { x.p.carrying.custom = false; x.p.carrying.mesh.visible = true; } },
   },
@@ -436,7 +436,7 @@ export const ACT = {
         if (every(x, 's', dt, 0.8)) sfx.pour();
       }
       // one hand on the tap while it's being turned, the other steadies the bucket; then both to the handle
-      S.hands(x, u < 0.2 || u > 0.8 ? h : null, u < 0.9 ? V(S.Y.under.x + 0.02, 0.3, S.Y.under.z - 0.17) : V(S.Y.under.x, 0.42, S.Y.under.z));
+      S.hands(x, u < 0.2 || u > 0.8 ? h : null, u < 0.9 ? V(S.Y.under.x + 0.02, 0.3, S.Y.under.z - 0.17) : V(S.Y.under.x, 0.42, S.Y.under.z), 0.9, 0.6);
     },
     end(S, x, done, fx) {
       const m = x.d.m; S.tapHandle.rotation.y = 0;
@@ -480,7 +480,7 @@ export const ACT = {
         pos = S.sponge.position.clone().lerp(V(x.d.bk.x, 0.3, x.d.bk.z), 0.2);
       }
       S.sponge.position.copy(pos); S.sponge.rotation.set(0, 0, side * Math.PI / 2);
-      if (both) S.hands(x, both[0], both[1]); else S.hands(x, V(pos.x - side * 0.05, pos.y, pos.z), null);
+      if (both) S.hands(x, both[0], both[1], 0.75, 0.75); else S.hands(x, V(pos.x - side * 0.05, pos.y, pos.z), null, 0.75, 0.6);
       S.look(x, both ? S.bucket.position : pos);
     },
     end(S, x, done) {
@@ -527,7 +527,7 @@ export const ACT = {
       const top = V(p.x + f.x * 0.12 - r.x * 0.14, (1.18 - 0.42 * low) * (c.height / 1.72), p.z + f.z * 0.12 - r.z * 0.14);
       tip.y = 0.02 + lift;
       S.broom.position.copy(tip); S.broom.quaternion.setFromUnitVectors(V(0, 1, 0), top.clone().sub(tip).normalize());
-      if (u < 0.74) S.hands(x, tip.clone().lerp(top, 0.55), tip.clone().lerp(top, 0.93)); else S.hands(x, tip.clone().lerp(top, 0.6), S.wp(S.pan, V(-0.3, 0.06, 0)));
+      if (u < 0.74) S.hands(x, tip.clone().lerp(top, 0.55), tip.clone().lerp(top, 0.93), 0.9, 0.9); else S.hands(x, tip.clone().lerp(top, 0.6), S.wp(S.pan, V(-0.3, 0.06, 0)), 0.9, 0.8);
       S.look(x, tip);
     },
     end(S, x, done, fx) {
@@ -546,7 +546,7 @@ export const ACT = {
       p.workLean = 0.12 + 0.12 * tilt;
       const sp = S.wp(can, can.userData.spout);
       if (tilt > 0.5) { for (let i = 0; i < 3; i++) S.fx.stream('water', sp, V(pl.x + (Math.random() - 0.5) * 0.2, 0.36, pl.z + (Math.random() - 0.5) * 0.2), 1, 0.28); if (every(x, 's', dt, 0.7)) sfx.pour(); S.setPlant(pl, Math.max(x.d.v0, sm(seg(u, 0.2, 0.9)))); }
-      S.hands(x, S.wp(can, V(-0.16, 0.1, 0)), S.wp(can, V(0, 0.25, 0))); S.look(x, V(pl.x, 0.5, pl.z));
+      S.hands(x, S.wp(can, V(-0.16, 0.1, 0)), S.wp(can, V(0, 0.25, 0)), 0.9, 0.9); S.look(x, V(pl.x, 0.5, pl.z));
     },
     end(S, x, done, fx) { const pl = S.PL[fx.i]; if (done) { S.setPlant(pl, 1); S.fx.burst('spark', V(pl.x, 0.8, pl.z), 8, 0.8, 0.5); } },
   },
@@ -560,7 +560,7 @@ export const ACT = {
       const mouth = c.headPos(V(0, 0, 0)).add(V(f.x * 0.11, -0.09, f.z * 0.11));
       const R = k < 0.25 ? arc(mouth, bread, k / 0.25, 0) : k < 0.5 ? arc(bread, dip, (k - 0.25) / 0.25, 0.06) : k < 0.72 ? arc(dip, mouth, (k - 0.5) / 0.22, 0.05) : mouth;
       x.p.workLean = k < 0.5 ? 0.22 : 0.1; c.talk = k > 0.72 ? 0.6 : 0;
-      S.hands(x, R, V(bread.x, bread.y, bread.z + 0.04));
+      S.hands(x, R, V(bread.x, bread.y, bread.z + 0.04), 0.7, 0.55);
       if (k > 0.72 && !x.d.m) { x.d.m = 1; sfx.munch(); S.fx.burst('crumb', mouth, 2, 0.4, 0.1); } if (k < 0.5) x.d.m = 0;
     },
     end(S, x, done) { x.c.talk = 0; if (done) S.tween(1.5, () => {}, () => { S.breakfast.visible = false; }); },
@@ -572,12 +572,12 @@ export const ACT = {
     begin(S, x, fx) { S.g.setDevice('fridge', true, 'player'); const it = S.F.items[fx.item]; x.d.it = it; x.d.home = it ? it.position.clone() : null; S.focus(x.p, S.F.front); },
     tick(S, x, u) {
       const it = x.d.it, c = x.c, f = fwd(c);
-      if (!it) { S.hands(x, S.F.front, null); return; }
+      if (!it) { S.hands(x, S.F.front, null, 0.5, 0.6); return; }
       const at = S.F.g.localToWorld(x.d.home.clone()), out = V(c.pos.x + f.x * 0.3, c.height * 0.62, c.pos.z + f.z * 0.3);
       x.p.workLean = (at.y < 0.6 ? 0.6 : 0.2) * Math.sin(Math.min(1, u * 1.3) * Math.PI);
       const hand = u < 0.5 ? arc(out, at, u / 0.5, 0.03) : arc(at, out, (u - 0.5) / 0.5, 0.06);
       if (u >= 0.5) { it.position.copy(S.F.g.worldToLocal(hand.clone())); if (once(x, 'tk')) sfx.pick(); }
-      S.hands(x, V(hand.x, hand.y + 0.05, hand.z), u > 0.55 ? V(hand.x + 0.1, hand.y + 0.03, hand.z) : S.wp(S.w.devices.fridge.door, V(0.62, 1.0, 0.02))); S.look(x, hand);
+      S.hands(x, V(hand.x, hand.y + 0.05, hand.z), u > 0.55 ? V(hand.x + 0.1, hand.y + 0.03, hand.z) : S.wp(S.w.devices.fridge.door, V(0.62, 1.0, 0.02)), 0.72, 0.85); S.look(x, hand);
     },
     end(S, x, done) { const it = x.d.it; if (!it) return; it.position.copy(x.d.home); if (done) it.visible = false; },
   },
@@ -594,7 +594,7 @@ export const ACT = {
       const k = sm(seg(u, 0.32, 0.58)) * (1 - sm(seg(u, 0.66, 0.86))), R = V(lerp(chest.x, bar.x, k), lerp(chest.y, bar.y + 0.02, k), lerp(chest.z, bar.z, k));
       if (u > 0.58 && x.d.took !== 1) { x.d.took = 1; sfx.pick(); }
       const b = S.CB.bars.children[0]; if (u > 0.58) { b.visible = u < 0.84; S.CB.bars.worldToLocal(b.position.copy(R)); b.position.y -= 0.02; }
-      S.hands(x, u > 0.3 ? R : null, u > 0.04 && u < 0.92 ? handle : null); S.look(x, u < 0.6 ? bar : R);
+      S.hands(x, u > 0.3 ? R : null, u > 0.04 && u < 0.92 ? handle : null, 0.72, 0.85); S.look(x, u < 0.6 ? bar : R);
     },
     end(S, x, done) { S.CB.door.rotation.y = 0; S.stool.visible = false; x.c.pos.y = 0; const b = S.CB.bars.children[0]; b.position.set(0.14, 0.1, -0.06); b.visible = !done; },
   },
@@ -602,7 +602,7 @@ export const ACT = {
   liftTray: {
     secs: 1.6,
     begin(S, x) { S.focus(x.p, S.wp(S.mansaf)); x.d.y = S.mansaf.position.y; },
-    tick(S, x, u) { const w = S.wp(S.mansaf), up = sm(seg(u, 0.55, 1)); x.p.workLean = 0.3 * (1 - up); S.mansaf.position.y = x.d.y + up * 0.1; S.hands(x, V(w.x - 0.05, w.y + 0.02, w.z - 0.3), V(w.x - 0.05, w.y + 0.02, w.z + 0.3)); },
+    tick(S, x, u) { const w = S.wp(S.mansaf), up = sm(seg(u, 0.55, 1)); x.p.workLean = 0.3 * (1 - up); S.mansaf.position.y = x.d.y + up * 0.1; S.hands(x, V(w.x - 0.05, w.y + 0.02, w.z - 0.3), V(w.x - 0.05, w.y + 0.02, w.z + 0.3), 0.5, 0.5); },
     end(S, x, done) { S.mansaf.position.y = x.d.y; if (done) S.mansaf.visible = false; },
   },
 
@@ -624,7 +624,7 @@ export const ACT = {
       if (f >= 0.25) { b.position.copy(h); b.rotation.set(f > 0.6 ? (f - 0.6) * 3.5 : 0, b.userData.ry, 0); }
       b.visible = f < 0.9;
       if (f > 0.85 && x.d.s !== i) { x.d.s = i; sfx.page(); }
-      S.hands(x, V(h.x, h.y + 0.03, h.z), V(top.x - r.x * 0.14, top.y, top.z - r.z * 0.14)); S.look(x, h);
+      S.hands(x, V(h.x, h.y + 0.03, h.z), V(top.x - r.x * 0.14, top.y, top.z - r.z * 0.14), 0.65, 0.6); S.look(x, h);
     },
     end(S, x, done) { for (const b of x.d.books || []) S.root.remove(b); if (done) S.tween(1.2, () => {}, () => { S.bag.visible = false; }); else S.bag.visible = false; },
   },
@@ -650,20 +650,20 @@ export const ACT = {
       const front = at(0.36, H * 0.86), over = V(head.x + f.x * 0.1, head.y + 0.2, head.z + f.z * 0.1), worn = at(0.02, H * 0.84);
       const wear = (stage, top, bottom) => { if (x.d.stage < stage) { x.d.stage = stage; if (of) of.wear(top, bottom); sfx.flap(); } };
       const crouch = (on) => { if (x.d.low !== (on ? 1 : 2)) { x.d.low = on ? 1 : 2; if (on) squat(x); else p.setPose('m_idle_neutral_01', { fade: 0.3 }); } };
-      const shirt = (gm, q, tilt, w = 0.17) => { gm.visible = true; gm.scale.setScalar(0.95 * s); gm.position.copy(q); gm.rotation.set(tilt, c.heading, 0, 'YXZ'); const [R, L] = side(q, w * s, -0.02); S.hands(x, R, L); };
+      const shirt = (gm, q, tilt, w = 0.17) => { gm.visible = true; gm.scale.setScalar(0.95 * s); gm.position.copy(q); gm.rotation.set(tilt, c.heading, 0, 'YXZ'); const [R, L] = side(q, w * s, -0.02); S.hands(x, R, L, 0.82, 0.82); };
       const one = x.d.one, B1 = 0.07, B2 = one ? 0.4 : 0.3, C2 = one ? 0.88 : 0.6;
       if (u < B1) { crouch(false); S.hands(x, null, null); S.look(x, rail); return; }
       if (u < B2) {                          // the old top: hands crossed to the hem, up over the head, into the bottom of the wardrobe
         const k = seg(u, B1, B2), gm = x.d.oldTop;
-        if (k < 0.25) { const hem = at(0.12, H * 0.52), [R, L] = side(hem, -0.1 * s); S.hands(x, R, L); S.look(x, hem); return; }
+        if (k < 0.25) { const hem = at(0.12, H * 0.52), [R, L] = side(hem, -0.1 * s); S.hands(x, R, L, 0.85, 0.85); S.look(x, hem); return; }
         if (k < 0.62) { const q = seg(k, 0.25, 0.62); shirt(gm, arc(worn, over, q, 0.03), -1.1 * sm(q)); if (q > 0.3) wear(1, 'vest', x.d.from); S.look(x, front); return; }
         const q = seg(k, 0.62, 1), pos = arc(over, heap, q, 0.12); gm.visible = q < 0.97; gm.position.copy(pos); gm.rotation.set(-1.1 * (1 - q) - 0.6 * q, c.heading, 0.4 * q, 'YXZ');
-        S.hands(x, V(pos.x, pos.y + 0.03, pos.z), null); S.look(x, heap); return;
+        S.hands(x, V(pos.x, pos.y + 0.03, pos.z), null, 0.75, 0.6); S.look(x, heap); return;
       }
       x.d.oldTop.visible = false;
       if (u < C2) {                          // the new one: off the rail, held up by the shoulders, over the head, pulled down
         const k = seg(u, B2, C2), gm = x.d.newTop;
-        if (k < 0.2) { S.hands(x, arc(front, rail, k / 0.2, 0.04), null); S.look(x, rail); return; }
+        if (k < 0.2) { S.hands(x, arc(front, rail, k / 0.2, 0.04), null, 0.8, 0.6); S.look(x, rail); return; }
         if (k < 0.42) { shirt(gm, arc(rail, front, (k - 0.2) / 0.22, 0.06), 0); S.look(x, gm.position); return; }
         if (k < 0.7) { const q = seg(k, 0.42, 0.7); shirt(gm, arc(front, over, q, 0.08), -1.1 * sm(q)); S.look(x, front); return; }
         const q = seg(k, 0.7, 1); shirt(gm, arc(over, worn, q, 0), -1.1 * (1 - sm(q)), lerp(0.17, 0.2, q)); if (q > 0.45) wear(2, x.d.to, one ? x.d.to : x.d.from); if (q > 0.96) gm.visible = false;
@@ -673,17 +673,17 @@ export const ACT = {
       if (!one && u < 0.9) {                 // the trousers: off the shelf, down on your haunches, feet in, up to the waist
         const k = seg(u, C2, 0.9), gm = x.d.newBot, low = at(0.2, 0.68 * s), held = at(0.3, H * 0.66);
         gm.scale.setScalar(s); gm.rotation.set(0, c.heading, 0, 'YXZ');
-        if (k < 0.18) { gm.visible = false; S.hands(x, arc(front, shelf, k / 0.18, 0.03), null); S.look(x, shelf); return; }
-        if (k < 0.34) { gm.visible = true; gm.position.copy(arc(shelf, held, (k - 0.18) / 0.16, 0.04)); S.hands(x, gm.position.clone(), null); S.look(x, gm.position); return; }
-        if (k < 0.55) { crouch(true); const q = seg(k, 0.34, 0.55); gm.position.copy(arc(held, low, q, 0)); const [R, L] = side(gm.position, 0.13 * s); S.hands(x, R, L); S.look(x, low); return; }
+        if (k < 0.18) { gm.visible = false; S.hands(x, arc(front, shelf, k / 0.18, 0.03), null, 0.75, 0.6); S.look(x, shelf); return; }
+        if (k < 0.34) { gm.visible = true; gm.position.copy(arc(shelf, held, (k - 0.18) / 0.16, 0.04)); S.hands(x, gm.position.clone(), null, 0.8, 0.6); S.look(x, gm.position); return; }
+        if (k < 0.55) { crouch(true); const q = seg(k, 0.34, 0.55); gm.position.copy(arc(held, low, q, 0)); const [R, L] = side(gm.position, 0.13 * s); S.hands(x, R, L, 0.8, 0.8); S.look(x, low); return; }
         const q = seg(k, 0.55, 0.9), up = at(0.06, lerp(0.68 * s, H * 0.55, sm(q)));
         if (q > 0.35) crouch(false);
-        gm.visible = q < 0.9; gm.position.copy(up); const [R, L] = side(up, 0.15 * s); S.hands(x, R, L);
+        gm.visible = q < 0.9; gm.position.copy(up); const [R, L] = side(up, 0.15 * s); S.hands(x, R, L, 0.8, 0.8);
         if (q > 0.55) wear(3, x.d.to, x.d.to); S.look(x, front); return;
       }
       x.d.newBot.visible = false; crouch(false);
       W.set(1 - sm(seg(u, 0.9, 1)));
-      if (u < 0.96) { const [R, L] = side(at(0.1, H * 0.82), 0.07 * s); S.hands(x, R, L); S.look(x, null || front); } else S.hands(x, null, null);       // a tug at the collar
+      if (u < 0.96) { const [R, L] = side(at(0.1, H * 0.82), 0.07 * s); S.hands(x, R, L, 0.85, 0.85); S.look(x, null || front); } else S.hands(x, null, null, 0, 0);       // a tug at the collar
     },
     end(S, x, done) {
       for (const m of [x.d.oldTop, x.d.newTop, x.d.newBot]) S.root.remove(m);
@@ -699,8 +699,8 @@ export const ACT = {
     begin(S, x) { const D = S.g.delivery; S.w.gate.target = 1; sfx.gate({ x: 22, y: 1, z: 6 }); D.hand(true); S.focus(x.p, V(22.0, 1.0, 6.0)); },
     tick(S, x, u) {
       const D = S.g.delivery, p = x.p, mid = V(21.98, 0.95, (p.z + 6.0) / 2), home = V(p.x + Math.sin(p.char.heading) * 0.28, 0.95, p.z + Math.cos(p.char.heading) * 0.28);
-      if (u < 0.45) S.hands(x, arc(home, V(mid.x - 0.06, mid.y + 0.4, mid.z), u / 0.45, 0.05), null);
-      else { if (once(x, 'take')) { D.handOver(); sfx.flap(); } S.hands(x, arc(V(mid.x - 0.06, mid.y + 0.4, mid.z), V(home.x, 1.0, home.z), seg(u, 0.45, 0.9), 0), null); }
+      if (u < 0.45) S.hands(x, arc(home, V(mid.x - 0.06, mid.y + 0.4, mid.z), u / 0.45, 0.05), null, 0.9, 0.6);
+      else { if (once(x, 'take')) { D.handOver(); sfx.flap(); } S.hands(x, arc(V(mid.x - 0.06, mid.y + 0.4, mid.z), V(home.x, 1.0, home.z), seg(u, 0.45, 0.9), 0), null, 0.92, 0.6); }
       S.look(x, V(22.3, 1.55, 6.0));
     },
     end(S, x, done) { S.hands(x, null, null); S.w.gate.target = 0; if (!done) { S.g.delivery.hand(false); S.g.delivery.bagGone = false; } },
@@ -719,7 +719,7 @@ export const ACT = {
       if (x.d.lowT) { if (u > 0.3 && u < 0.78 && once(x, 'dn')) squat(x); if (u >= 0.78 && once(x, 'up')) x.p.setPose('m_idle_neutral_01', { fade: 0.25 }); x.p.workLean = 0.2 * sm(seg(u, 0.1, 0.6)) * (1 - sm(seg(u, 0.8, 1))); }
       else x.p.workLean = 0.5 * sm(seg(u, 0.1, 0.7)) * (1 - sm(seg(u, 0.85, 1)));
       it.grounded = pos; it.custom = true; it.mesh.rotation.set(0, c.heading, 0);
-      S.hands(x, V(pos.x + r.x * w, pos.y + lift, pos.z + r.z * w), V(pos.x - r.x * w, pos.y + lift, pos.z - r.z * w)); S.look(x, pos);
+      S.hands(x, V(pos.x + r.x * w, pos.y + lift, pos.z + r.z * w), V(pos.x - r.x * w, pos.y + lift, pos.z - r.z * w), 0.5, 0.5); S.look(x, pos);
       if (u > 0.72 && once(x, 'c')) sfx.clink();
     },
   },
@@ -736,7 +736,7 @@ export const ACT = {
       const a = x.t * 7, r = 0.15 * (1 - 0.5 * u), o = x.d.near, h = V(o.x + Math.cos(a) * r, 0.03, o.z + Math.sin(a) * r);
       x.d.rag.position.copy(h); x.d.rag.rotation.y = a;
       if (x.d.m.mesh) x.d.m.mesh.scale.setScalar(Math.max(0.02, x.d.s0 * (1 - 0.95 * sm(u))));
-      x.p.workLean = 0.5; S.hands(x, V(h.x, 0.06, h.z), null); S.look(x, h);
+      x.p.workLean = 0.5; S.hands(x, V(h.x, 0.06, h.z), null, 0.35, 0.6); S.look(x, h);
       if (every(x, 's', dt, 0.35)) sfx.scrub();
     },
     end(S, x, done) { S.root.remove(x.d.rag); if (!done && x.d.m.mesh) x.d.m.mesh.scale.setScalar(x.d.s0); },
@@ -763,7 +763,7 @@ export const ACT = {
       const chest = V(c.pos.x + f.x * 0.3, c.height * (x.d.low && u > 0.15 && u < 0.7 ? 0.36 : 0.6), c.pos.z + f.z * 0.3);
       const k = u < 0.48 ? sm(seg(u, 0.12, 0.48)) : 1 - sm((u - 0.48) / 0.52), h = V(lerp(chest.x, at.x, k), lerp(chest.y, at.y + 0.05, k), lerp(chest.z, at.z, k));
       if (u > 0.48 && x.d.pr) x.d.pr.position.set(h.x, h.y - 0.05, h.z);
-      S.hands(x, V(h.x + r.x * 0.1, h.y, h.z + r.z * 0.1), V(h.x - r.x * 0.1, h.y, h.z - r.z * 0.1)); S.look(x, u < 0.48 ? at : h);
+      S.hands(x, V(h.x + r.x * 0.1, h.y, h.z + r.z * 0.1), V(h.x - r.x * 0.1, h.y, h.z - r.z * 0.1), 0.72, 0.72); S.look(x, u < 0.48 ? at : h);
     },
     end(S, x, done) { if (!done && x.d.pr) x.d.pr.position.copy(x.d.at); },
   },
@@ -774,7 +774,7 @@ export const ACT = {
     tick(S, x, u) {
       const at = x.d.at, c = x.c, k = sm(seg(u, 0, 0.6)), up = sm(seg(u, 0.6, 1)), h = V(lerp(c.pos.x, at.x, k), lerp(0.5, at.y, k) + up * 0.3, lerp(c.pos.z, at.z, k));
       if (x.d.m && u > 0.6) x.d.m.position.set(h.x, h.y - 0.03, h.z);
-      S.hands(x, h, null);
+      S.hands(x, h, null, 0.72, 0.6);
     },
     end(S, x, done) { if (!done && x.d.m && x.d.home) x.d.m.position.copy(x.d.home); },
   },
@@ -786,7 +786,7 @@ export const ACT = {
       const d = x.d.d, c = x.c, f = fwd(c), near = d.pivot.position.x > c.pos.x ? 1 : -1;
       const handle = d.pivot.localToWorld(V(d.handleX - Math.sign(d.handleX) * 0.05, 1.02 - 0.03 * sm(seg(u, 0.3, 0.45)), near * 0.07));
       const rest = V(c.pos.x + f.x * 0.25, c.height * 0.58, c.pos.z + f.z * 0.25), k = sm(seg(u, 0, 0.3)) * (1 - sm(seg(u, 0.85, 1)));
-      S.hands(x, V(lerp(rest.x, handle.x, k), lerp(rest.y, handle.y, k), lerp(rest.z, handle.z, k)), null); S.look(x, handle);
+      S.hands(x, V(lerp(rest.x, handle.x, k), lerp(rest.y, handle.y, k), lerp(rest.z, handle.z, k)), null, 0.85, 0.6); S.look(x, handle);
       x.p.workLean = 0.12 * sm(seg(u, 0.05, 0.3)) - 0.16 * sm(seg(u, 0.4, 0.8));
       if (u > 0.3 && once(x, 'cl')) sfx.click();
     },
@@ -797,7 +797,7 @@ export const ACT = {
     begin(S, x, fx) { const W = S.w.wardrobes[fx.id]; x.d.W = W; S.tween(0.6, (k) => W.set(sm(k))); S.focus(x.p, V(W.bay.x, 1.0, W.bay.z), -1); x.p.workLean = 0.2; },
     tick(S, x, u) {
       const W = x.d.W, a = x.t * 4.5, at = (y, ph) => V(W.inside.x + Math.sin(a + ph) * 0.09, y + Math.cos(a * 0.7 + ph) * 0.07, W.inside.z + Math.cos(a + ph) * 0.05);
-      S.hands(x, at(0.98, 0), at(0.62, 2)); S.look(x, at(0.9, 0)); if (u > 0.85) W.set(1 - sm(seg(u, 0.85, 1)));
+      S.hands(x, at(0.98, 0), at(0.62, 2), 0.5, 0.5); S.look(x, at(0.9, 0)); if (u > 0.85) W.set(1 - sm(seg(u, 0.85, 1)));
     },
     end(S, x) { x.d.W.set(0); },
   },
@@ -807,7 +807,7 @@ export const ACT = {
       const f = fwd(x.c), neck = x.c.headPos(V(0, 0, 0)).add(V(f.x * 0.25, -0.12, f.z * 0.25));
       S.perfume.position.lerp(u < 0.15 ? x.d.home : neck, 0.2);
       if (u > 0.25 && every(x, 's', dt, 0.5)) { sfx.spray(); for (let i = 0; i < 8; i++) S.fx.emit('mist', S.perfume.position, { x: -f.x * 1.2, y: 0.1, z: -f.z * 1.2 }, 0.6); }
-      S.hands(x, V(S.perfume.position.x, S.perfume.position.y - 0.03, S.perfume.position.z), null);
+      S.hands(x, V(S.perfume.position.x, S.perfume.position.y - 0.03, S.perfume.position.z), null, 0.62, 0.6);
     },
     end(S, x) { S.perfume.position.copy(x.d.home); },
   },

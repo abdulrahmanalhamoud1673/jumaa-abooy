@@ -437,7 +437,7 @@ export class Delivery {
     const r = this.rider, c = r.char, sc = this.sc;
     c.play('m_sit_chair_idle_neutral_01', { fade: 0.25 }); c.heading = sc.group.rotation.y; c.root.rotation.y = c.heading; c.straddle = 0.35;
     c.pos.copy(sc.at(sc.sitAt));
-    c.reachTo('R', sc.at(sc.gripR)); c.reachTo('L', sc.at(sc.gripL));
+    c.reachTo('R', sc.at(sc.gripR), 0.92); c.reachTo('L', sc.at(sc.gripL), 0.92);
   }
   stand(k) { this.sc.setStand(k); this.sc.group.rotation.z = -0.075 * k; }
   walk(x, z, dt, v = 1.25) {
@@ -449,7 +449,7 @@ export class Delivery {
     this.stepT = (this.stepT || 0) - dt * v * 1.45; if (this.stepT <= 0) { this.stepT = 1; sfx.step({ x: c.pos.x, y: 0.1, z: c.pos.z }, 0.6); }
     return false;
   }
-  hold() { const c = this.rider.char; c.gripPos(this.bag.position, 0.06, 0.03, 0.42); this.bag.rotation.set(0, c.root.rotation.y, 0); }
+  hold() { const c = this.rider.char; c.hold.R = 0.95; c.gripPos(this.bag.position, 0.06, 0.03, 0.42); this.bag.rotation.set(0, c.root.rotation.y, 0); }
   say(cat) { return this.game.say(this.rider, cat, { loud: true }); }
 
   // the player's hand over the gate (actions.js takeOrder)

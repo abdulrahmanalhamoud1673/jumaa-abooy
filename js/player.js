@@ -5,6 +5,7 @@ import { input } from './input.js';
 import { sfx } from './audio.js';
 import { lerpAngle } from './char.js';
 import { H } from './world.js';
+import { shawarma } from './props.js';
 
 const HOLD = { tea: 'tray', coffee: 'tray', cups: 'tray', kunafa: 'tray', mansaf: 'tray', laundry: 'basket', clothes: 'basket', wet: 'basket', water: 'cup', trash: 'bag', talabat: 'bag', slipper: 'side' };
 
@@ -18,6 +19,7 @@ export const TRAITS = {
 };
 
 const V = new THREE.Vector3(), V2 = new THREE.Vector3();
+const E1 = new THREE.Vector3(), E2 = new THREE.Vector3(), E3 = new THREE.Vector3(), E4 = new THREE.Vector3(), EQ = new THREE.Quaternion();
 
 export class Player {
   constructor(game, char, key) {
@@ -132,6 +134,7 @@ export class Player {
     }
     if (this.tapT > 0) { this.tapT -= dt; c.reachTo('R', this.tapPos); if (this.tapT <= 0) c.reachTo('R', null); }      // a finger on the switch
     if (this.carrying) this.hold(dt); else if (this.holding) { this.holding = false; c.release(); }
+    if (this.eatT && !(this.carrying && this.act === 'eat')) this.stopEating();
     // a bucket or a watering can swinging from one hand
     if (this.handProp) { const m = this.handProp.mesh; c.handPos(this.handProp.side, m.position); m.position.y = Math.max(0, m.position.y + this.handProp.dy); m.rotation.set(0, c.root.rotation.y, 0); }
     c.update(dt);
@@ -141,8 +144,44 @@ export class Player {
 
   // What you carry decides how you carry it. The thing is placed against the body where a person would
   // hold it, it bobs with the walk, and the hands are put on it.
+  // Eating what you carry, the way it is really eaten: up to the mouth, a bite, down again and chew. The order from
+  // talabat goes down at your feet first and the shawarma comes out of it.
+  eat(dt) {
+    const c = this.char, it = this.carrying, m = it.mesh, k = c.height / 1.72, h = c.root.rotation.y, fx = Math.sin(h), fz = Math.cos(h), rx = -Math.cos(h), rz = Math.sin(h);
+    this.eatT = (this.eatT || 0) + dt;
+    let food = m;
+    if (it.item === 'talabat') {
+      if (!it.eatDown) { it.eatDown = true; it.grounded = new THREE.Vector3(c.pos.x + (fx * 0.28 - rx * 0.24) * k, 0, c.pos.z + (fz * 0.28 - rz * 0.24) * k); sfx.flap(); }
+      m.position.copy(it.grounded); m.rotation.set(0, h + 0.5, 0); m.visible = c.visible;
+      if (!this.wrap) { this.wrap = shawarma(); this.game.scene.add(this.wrap); }
+      food = this.wrap; food.visible = c.visible;
+    }
+    const P = 2.1, u = (this.eatT % P) / P, n = Math.floor(this.eatT / P);
+    const up = u < 0.3 ? (u / 0.3) * (u / 0.3) * (3 - 2 * u / 0.3) : u < 0.5 ? 1 : u < 0.8 ? 1 - ((u - 0.5) / 0.3) ** 2 * (3 - 2 * (u - 0.5) / 0.3) : 0;
+    if (u > 0.4 && this.bitten !== n) { this.bitten = n; sfx.munch(); if (food.userData.bite) food.userData.bite(); }
+    const B = c.bones, eyes = B.LEye ? B.LEye.getWorldPosition(E1).add(B.REye.getWorldPosition(E2)).multiplyScalar(0.5) : c.headPos(E1);
+    const mouth = E2.set(eyes.x + fx * 0.04 * k, eyes.y - 0.085 * k, eyes.z + fz * 0.04 * k);
+    const rest = E3.set(c.pos.x + (fx * 0.27 + rx * 0.13) * k, c.pos.y + 1.0 * k, c.pos.z + (fz * 0.27 + rz * 0.13) * k);
+    const at = E4.set(mouth.x + (rx * 0.05 + fx * 0.07) * k, mouth.y - 0.07 * k, mouth.z + (rz * 0.05 + fz * 0.07) * k);
+    c.reachTo('R', rest.lerp(at, up), 0.75); c.reachTo('L', null); c.reach.R.pole = up > 0.05 ? [-0.25, -1, 0.2] : null;
+    // in the fingers, the end to be bitten pointing at the mouth once it is up there (and ahead, lower down)
+    c.gripPos(food.position, 0.07, 0.03, 0);
+    const dir = E3.set(fx, 0.35, fz).normalize().lerp(E4.copy(mouth).sub(food.position).normalize(), up).normalize();
+    food.quaternion.copy(EQ.setFromUnitVectors(food.userData.axis || E1.set(0, 1, 0), dir));
+    food.position.addScaledVector(dir, food.userData.hold || 0);
+    // and chew while it goes down again
+    c.mouth = u > 0.45 && u < 0.97 ? 0.12 + 0.14 * (0.5 + 0.5 * Math.sin(this.eatT * 12)) : 0;
+  }
+  stopEating() {
+    const c = this.char, it = this.carrying;
+    this.eatT = 0; c.mouth = null; c.reach.R.pole = null;
+    if (this.wrap) { this.wrap.removeFromParent(); this.wrap = null; }
+    if (it && it.eatDown) { it.eatDown = false; it.grounded = null; }
+  }
+
   hold(dt) {
     const c = this.char, it = this.carrying, m = it.mesh, k = c.height / 1.72;
+    if (this.act === 'eat' && (it.item === 'chocolate' || it.item === 'talabat') && !this.pose && !c.down) { this.eat(dt); return; }
     m.visible = !it.hide && (c.visible || !!it.grounded);
     if (it.grounded) { m.position.copy(it.grounded); if (!it.custom) m.rotation.set(0, 0, 0); return; }
     if (this.pose || c.down) return;                 // a job is animating it
@@ -150,23 +189,23 @@ export class Player {
     this.bobT = (this.bobT || 0) + dt * (this.moving ? this.speed * 3.1 : 0);
     const bob = this.moving ? Math.sin(this.bobT * 2) * 0.012 : Math.sin(c.time * 1.5) * 0.004, sway = this.moving ? Math.sin(this.bobT) : 0;
     const at = (f, r, u) => m.position.set(c.pos.x + (fx * f + rx * r) * k, u * k + bob, c.pos.z + (fz * f + rz * r) * k);
-    const grip = (side, r, u, f = 0) => c.reachTo(side, V.set(m.position.x + rx * r + fx * f, m.position.y + u, m.position.z + rz * r + fz * f));
+    const grip = (side, r, u, f = 0, k = 0.6) => c.reachTo(side, V.set(m.position.x + rx * r + fx * f, m.position.y + u, m.position.z + rz * r + fz * f), k);
     const style = HOLD[it.item] || 'hand';
     this.holding = true; if (style !== 'cup') c.grip = 0;
     if (style === 'tray') {            // level, at the navel, elbows in, a hand under each side of the rim
       const wide = it.item === 'mansaf' ? 0.3 : 0.2;
       at(it.item === 'mansaf' ? 0.42 : 0.36, 0, it.item === 'mansaf' ? 0.95 : 1.02); m.rotation.set(0, h, sway * 0.012);
-      grip('R', wide, -0.005, -0.03); grip('L', -wide, -0.005, -0.03);
+      grip('R', wide, -0.005, -0.03, 0.5); grip('L', -wide, -0.005, -0.03, 0.5);
     } else if (style === 'basket') {   // against the belly, hands on the rim, leaning back a touch
-      at(0.3, 0, 0.8); m.rotation.set(-0.07, h, 0, 'YXZ'); grip('R', 0.25, 0.29); grip('L', -0.25, 0.29);
+      at(0.3, 0, 0.8); m.rotation.set(-0.07, h, 0, 'YXZ'); grip('R', 0.25, 0.29, 0, 0.8); grip('L', -0.25, 0.29, 0, 0.8);
     } else if (style === 'cup') {      // upright in front of the chest, elbow bent, the other arm free
       at(0.24, 0.17, 1.14); m.position.y -= bob * 0.5; c.reachTo('R', V.copy(m.position)); c.reachTo('L', null); c.grip = 1; m.rotation.set(0, h, 0); it.inFist = true;
     } else if (style === 'bag') {      // hanging from the fist at the side, swinging
-      at(0.04 + sway * 0.05, 0.3, 0.36); m.rotation.set(sway * 0.09, h, 0.05, 'YXZ'); grip('R', 0, 0.4); c.reachTo('L', null);
+      at(0.04 + sway * 0.05, 0.3, 0.36); m.rotation.set(sway * 0.09, h, 0.05, 'YXZ'); grip('R', 0, 0.4, 0, 0.95); c.reachTo('L', null);
     } else if (style === 'side') {     // in the hand, arm down
-      at(0.05, 0.27, 0.8); m.rotation.set(0, h, 0); grip('R', 0, 0.02); c.reachTo('L', null);
+      at(0.05, 0.27, 0.8); m.rotation.set(0, h, 0); grip('R', 0, 0.02, 0, 0.85); c.reachTo('L', null);
     } else {                            // small things: in the hand, forearm level
-      at(0.27, 0.14, 0.98); m.rotation.set(0, h, 0); grip('R', 0.02, -0.01, -0.03); c.reachTo('L', null);
+      at(0.27, 0.14, 0.98); m.rotation.set(0, h, 0); grip('R', 0.02, -0.01, -0.03, 0.72); c.reachTo('L', null);
     }
   }
 

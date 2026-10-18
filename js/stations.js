@@ -14,7 +14,7 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const sm = (t) => t * t * (3 - 2 * t);
 const seg = (u, a, b) => clamp((u - a) / (b - a));
 const TOP = 0.9;                       // kitchen counter height
-const T1 = V(0, 0, 0), T2 = V(0, 0, 0);
+const T1 = V(0, 0, 0), T2 = V(0, 0, 0), HX = V(0, 0, 0), HY = V(0, 0, 0), HZ = V(0, 0, 0), HM = new THREE.Matrix4();
 
 export { FX_SECS };
 
@@ -421,7 +421,19 @@ export class Stations {
     const p = this.g.player;
     if (p) {
       this.phoneMesh.visible = !!p.phoneOut && p.char.visible;
-      if (p.phoneOut) { const c = p.char; c.handPos('R', this.phoneMesh.position); this.phoneMesh.position.y += 0.05; this.phoneMesh.rotation.set(-0.9, c.root.rotation.y + Math.PI, 0, 'YXZ'); }
+      if (p.phoneOut) {
+        // in the palm, along the hand, the back of it on the palm and the screen towards the face; fingers round its edges
+        const c = p.char, ha = c.bones.R_Hand, m = this.phoneMesh, k = c.height / 1.72, h = c.root.rotation.y;
+        // up in front of the chest, the palm (and so the screen) turned to the eyes
+        c.reachTo('R', T1.set(c.pos.x + Math.sin(h) * 0.3 * k - Math.cos(h) * 0.1 * k, c.pos.y + 1.2 * k, c.pos.z + Math.cos(h) * 0.3 * k + Math.sin(h) * 0.1 * k), 0.42);
+        const B = c.bones; c.palmTo = (this._palm || (this._palm = V(0, 0, 0))); B.LEye.getWorldPosition(c.palmTo).add(B.REye.getWorldPosition(T2)).multiplyScalar(0.5);
+        ha.updateWorldMatrix(true, false); const e = ha.matrixWorld.elements;
+        HX.set(e[0], e[1], e[2]).normalize(); HY.set(e[4], e[5], e[6]).normalize(); HZ.crossVectors(HY, HX).normalize();
+        ha.getWorldPosition(m.position).addScaledVector(HX, 0.07).addScaledVector(HY, 0.024);
+        m.quaternion.setFromRotationMatrix(HM.makeBasis(HZ, HY, HX));
+        c.look = (this._phoneLook || (this._phoneLook = V(0, 0, 0))).copy(m.position);
+      } else if (this._phoneWas) { p.char.look = null; p.char.palmTo = null; p.char.reachTo('R', null); }
+      this._phoneWas = p.phoneOut;
     }
   }
 
@@ -504,7 +516,8 @@ export class Stations {
   }
   pickUp(p) { if (this.held && !p.carrying) p.handProp = this.held === 'can' ? { mesh: this.can, side: 'R', dy: -0.2 } : { mesh: this.bucket, side: 'L', dy: -0.3 }; }
   calm(p) { const c = p.char; c.release(); c.look = null; c.talk = 0; p.workLean = null; p.focus = null; p.pose = null; p.invisible = false; c.pos.y = 0; if (p.carrying) { p.carrying.grounded = null; p.carrying.custom = false; p.carrying.hide = false; } }
-  hands(x, R, L) { x.c.reachTo('R', R || null); x.c.reachTo('L', L || null); }
+  // (kr, kl: how far each hand closes round what it is on, see Char.reachTo)
+  hands(x, R, L, kr = 0.6, kl = 0.6) { x.c.reachTo('R', R || null, kr); x.c.reachTo('L', L || null, kl); }
   // every `period` seconds (while an action runs)
   every(x, key, period) { x.d[key] = (x.d[key] || 0) + (x.dt || 0); if (x.d[key] >= period) { x.d[key] = 0; return true; } return false; }
   // put the basket you're carrying on the ground beside you while both hands are busy

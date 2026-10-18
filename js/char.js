@@ -7,6 +7,9 @@ const UP = new THREE.Vector3(0, 1, 0), AXY = new THREE.Vector3(0, 1, 0), AXZ = n
 const GM = new THREE.Matrix4(), GQ = new THREE.Quaternion(), GP = new THREE.Quaternion();
 // how far each joint of the right hand closes round a glass (radians, on top of the animation)
 const CURL = [['R_Finger0', AXY, -0.42], ['R_Finger01', AXZ, 0.25], ...[1, 2, 3, 4].flatMap((f) => [[`R_Finger${f}`, AXZ, 0.34], [`R_Finger${f}1`, AXZ, 0.55], [`R_Finger${f}2`, AXZ, 0.4]])];
+// a hand closing round a handle, per side: [bone, axis, radians at a full fist] (the left hand's joints are mirrored)
+const FIST = (s, m) => [[`${s}_Finger0`, AXY, -0.5 * m], [`${s}_Finger01`, AXZ, 0.55 * m], [`${s}_Finger02`, AXZ, 0.45 * m],
+  ...[1, 2, 3, 4].flatMap((f) => [[`${s}_Finger${f}`, AXZ, (0.95 + f * 0.06) * m], [`${s}_Finger${f}1`, AXZ, 1.3 * m], [`${s}_Finger${f}2`, AXZ, 0.85 * m]])];
 const PQ = new THREE.Quaternion(), DQ = new THREE.Quaternion(), TQ = new THREE.Quaternion();
 const V1 = new THREE.Vector3(), V2 = new THREE.Vector3(), V3 = new THREE.Vector3();
 const IK1 = new THREE.Vector3(), IK2 = new THREE.Vector3(), IK3 = new THREE.Vector3(), IK4 = new THREE.Vector3(), IK5 = new THREE.Vector3(), IK6 = new THREE.Vector3();
@@ -119,6 +122,7 @@ export class Character {
     this.throwT = -1;                 // 0..1 while the arm throws
     this.reach = { R: { pos: new THREE.Vector3(), on: false, w: 0 }, L: { pos: new THREE.Vector3(), on: false, w: 0 } };
     this.grip = 0; this.gripW = 0;      // right hand closed round something upright (0..1)   // hand targets (world)
+    this.hold = { R: 0, L: 0 }; this.holdW = { R: 0, L: 0 };      // how far each hand's fingers close round what it holds (0 open, 1 a fist)
     this.fallT = -1; this.fallDir = 1; this.lying = 0;
     this.time = Math.random() * 10;
     this.visible = true;
@@ -237,8 +241,9 @@ export class Character {
   headPos(out = new THREE.Vector3()) { return this.bones.Head.getWorldPosition(out); }
 
   // Put a hand on something: a world point the arm bends to reach (null lets go).
-  reachTo(side, p) { const r = this.reach[side]; if (p) { r.pos.copy(p); r.on = true; } else r.on = false; }
-  release() { this.reach.R.on = this.reach.L.on = false; this.grip = 0; }
+  // (k: how the fingers take it: about 0.6 for most things, ~0.9 a handle or a bag's straps, ~0.2 a flat hand on a surface)
+  reachTo(side, p, k = 0.6) { const r = this.reach[side]; if (p) { r.pos.copy(p); r.on = true; this.hold[side] = k; } else { r.on = false; this.hold[side] = 0; } }
+  release() { this.reach.R.on = this.reach.L.on = false; this.grip = 0; this.hold.R = this.hold.L = 0; }
   // Lie down on a bed: on your back, head on the pillow, feet towards the foot of it (the pivot of a lying body is its soles).
   lieOn(seat) {
     const h = seat.heading, len = this.height * 0.93;
@@ -260,7 +265,7 @@ export class Character {
     const D = IK4.copy(target).sub(S); let d = D.length();
     d = Math.max(Math.abs(a - b) + 0.01, Math.min((a + b) * 0.995, d)); D.normalize();
     const x = (a * a - b * b + d * d) / (2 * d), h = Math.sqrt(Math.max(0, a * a - x * x));
-    const pole = this.local(side === 'R' ? -0.6 : 0.6, -0.7, -0.4, IK5);
+    const P = this.reach[side].pole, pole = P ? this.local(side === 'R' ? P[0] : -P[0], P[1], P[2], IK5) : this.local(side === 'R' ? -0.6 : 0.6, -0.7, -0.4, IK5);
     pole.addScaledVector(D, -pole.dot(D)).normalize();
     const elbow = IK2.copy(S).addScaledVector(D, x).addScaledVector(pole, h);
     this.aim(up, fo, IK6.copy(elbow).sub(S).normalize(), w);
@@ -331,6 +336,19 @@ export class Character {
       GQ.setFromRotationMatrix(GM.makeBasis(X, Y, Z));
       ha.parent.getWorldQuaternion(GP); ha.quaternion.slerp(GP.invert().multiply(GQ), k);
       for (const [name, axis, angle] of CURL) { const b = B[name]; if (b) b.quaternion.multiply(DQ.setFromAxisAngle(axis, angle * k)); }
+    }
+    // a palm turned towards a point (the right hand's: a phone's screen towards the eyes)
+    if (this.palmTo && this.fallT < 0) {
+      const ha = B.R_Hand; ha.updateWorldMatrix(true, false); const e = ha.matrixWorld.elements;
+      IK1.set(e[4], e[5], e[6]).normalize(); ha.getWorldPosition(IK2); IK3.copy(this.palmTo).sub(IK2).normalize();
+      GQ.setFromUnitVectors(IK1, IK3); ha.getWorldQuaternion(GP); GQ.multiply(GP); ha.parent.getWorldQuaternion(GP); ha.quaternion.copy(GP.invert().multiply(GQ));
+    }
+    // fingers round whatever each hand holds (the glass grip above already curled the right one)
+    if (!this.fists) this.fists = { R: FIST('R', 1), L: FIST('L', this.mirrorL || 1) };
+    for (const s of ['R', 'L']) {
+      this.holdW[s] += (this.hold[s] - this.holdW[s]) * Math.min(1, dt * 10);
+      const k = this.holdW[s] - (s === 'R' ? this.gripW * 0.7 : 0);
+      if (k > 0.02 && this.fallT < 0) for (const [name, axis, angle] of this.fists[s]) { const b = B[name]; if (b) b.quaternion.multiply(DQ.setFromAxisAngle(axis, angle * k)); }
     }
     // throwing arm (dad + slipper)
     if (this.throwT >= 0) {

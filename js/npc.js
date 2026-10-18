@@ -8,6 +8,8 @@ const MON = new THREE.Vector3(MONITOR.x, MONITOR.y, MONITOR.z);
 
 const rnd = (a, b) => a + Math.random() * (b - a);
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+// a group of lines that has at least one recording
+const voiced = (cat) => { const e = A.lines.lines && A.lines.lines[cat]; return !!e && e.t.some((_, i) => A.voice[`${cat}.${i}`]); };
 const V = new THREE.Vector3();
 
 export class Actor {
@@ -145,6 +147,7 @@ export class Dad extends Actor {
     this.pending = null; this.ammo = 2; this.rage = false; this.rageT = 0; this.throwCd = 0; this.windup = -1;
     this.scanFrom = (this.game.now || 0) + 12;      // let the kid look around before the first complaint
     this.onCams = 0; this.camT = rnd(8, 14);
+    this.times = {}; this.teaseT = rnd(18, 30); this.teaseCd = 0; this.lastScold = -99;
     this.away = false; this.honkT = 6; this.resumeState = null; this.grace = 0; this.checkDeskT = cfg.deskCheck ? rnd(28, 40) : Infinity;
     if (this.tire) { this.char.reachTo('R', null); this.tire = null; if (this.x > 21.8) this.char.pos.set(21.3, 0, 6.0); }      // caught out in the lane: back inside the gate
     this.halt(); this.pose = null; if (this.seat) { this.seat = null; this.char.lying = 0; }
@@ -177,7 +180,7 @@ export class Dad extends Actor {
       const useful = p.act || g.stay || p.carrying || (g.interaction && g.interaction.running);
       if (!useful && this.state === 'routine' && !this.talking && g.anger >= 28 && g.now > (this.khilfeCd || 0) && !g.flags.guests && this.dist(p) < 8 && Math.random() < 0.55) { this.khilfeCd = g.now + 45; this.say('dad.khilfe', { loud: true }); }
     }
-    this.char.look = this.awareness > 0.25 && sees ? p.char.headPos(this._lk || (this._lk = new THREE.Vector3())) : null;
+    if (!(this.gift && this.gift.k > 0.15)) this.char.look = this.awareness > 0.25 && sees ? p.char.headPos(this._lk || (this._lk = new THREE.Vector3())) : null;      // (not in the middle of a sip)
   }
 
   hear(ev) {
@@ -198,8 +201,8 @@ export class Dad extends Actor {
       return;
     }
     this.hearCd = g.now + 11;
-    if (ev.kind === 'crash') { this.say('dad.noise', { index: 4, loud: true }); this.investigate(ev.x, ev.z, true); g.addAnger(4, 'noise'); return; }
-    if (this.cfg.quiet) { g.addAnger(4, 'noise'); this.say('dad.noise', { index: 5, loud: true }); return; }
+    if (ev.kind === 'crash') { if (voiced('dad.noise.crash')) this.say('dad.noise.crash', { loud: true }); else this.say('dad.noise', { index: 4, loud: true }); this.investigate(ev.x, ev.z, true); g.addAnger(4, 'noise'); return; }
+    if (this.cfg.quiet) { g.addAnger(4, 'noise'); if (voiced('dad.noise.quiet')) this.say('dad.noise.quiet', { loud: true }); else this.say('dad.noise', { index: 5, loud: true }); return; }
     if (ev.kind === 'ps' || ev.kind === 'use' || ev.kind === 'tv') { this.say('dad.noise'); this.investigate(ev.x, ev.z, false); }
   }
 
@@ -221,7 +224,7 @@ export class Dad extends Actor {
     // found doing the right thing: a father's praise, such as it is, and it takes the edge off him
     const I = g.interaction, job = I && I.running && g.tasks.find((t) => I.key === t.id + ':' + t.i);
     if (p.act === 'study' || (job && job.kind !== 'secret')) {
-      if (g.now > (this.praiseCd || 0) && !this.talking && this.state === 'routine' && g.anger < 75 && this.dist(p) < 7) { this.praiseCd = g.now + 45; this.say(p.act === 'study' ? 'dad.study' : 'dad.praise'); g.addAnger(-3, 'praise'); }
+      if (g.now > (this.praiseCd || 0) && !this.talking && this.state === 'routine' && g.anger < 75 && this.dist(p) < 7) { this.praiseCd = g.now + 45; this.say(p.act === 'study' ? 'dad.study' : voiced('dad.praise.sarcastic') && Math.random() < 0.35 ? 'dad.praise.sarcastic' : 'dad.praise'); g.addAnger(-3, 'praise'); }
       return;
     }
     let rule = null;
@@ -254,8 +257,9 @@ export class Dad extends Actor {
       return;
     }
     // standing about gets the office speech half the time; the worse sins end, now and then, on «الخلفة»
-    const cat = rule === 'idle' && Math.random() < 0.5 ? 'dad.company' : R.cat;
+    const base = rule === 'idle' && Math.random() < 0.5 ? 'dad.company' : R.cat, cat = this.ctxCat(rule, base);
     const dur = this.say(cat, { index: cat === R.cat ? R.index : undefined, loud: true });
+    this.lastScold = g.now;
     if (KHILFE.includes(rule) && g.now > (this.khilfeCd || 0) && Math.random() < 0.45) {
       this.khilfeCd = g.now + 35;
       g.later(dur + 0.25, () => { if (this.seen && !g.flags.guests && !g.over && (this.state === 'scold' || this.state === 'routine')) this.say('dad.khilfe', { loud: true }); });
@@ -263,6 +267,60 @@ export class Dad extends Actor {
     g.addAnger(R.anger + extra, rule);
     if (this.state === 'routine' || this.state === 'investigate' || this.state === 'fix') this.scold();
     if (rule === 'ps') g.setDevice('console', false, 'dad');
+  }
+
+  // The same sin said the same way every time stops being funny. Where you are, who you are, the hour and whether he
+  // has caught you at it already today pick the line (when that group has been recorded); the general one still comes now and then.
+  ctxCat(rule, base) {
+    const g = this.game, p = g.player, room = g.world.roomAt(p.x, p.z), night = g.seg && g.seg.tod === 'night', d = this.dist(p);
+    const n = this.times[rule] = (this.times[rule] || 0) + 1, kid = g.playerKey === 'kid', sis = g.playerKey === 'sis';
+    const chores = g.tasks.some((t) => !t.done && (t.kind === 'chore' || t.kind === 'cmd'));
+    const want = [];
+    if (rule === 'phone') {
+      if (n >= 3) want.push('dad.phone.again');
+      if (room === 'bath') want.push('dad.phone.bath');
+      if (p.char.lying) want.push('dad.phone.bed');
+      if (kid) want.push('dad.phone.kid');
+      if (sis) want.push('dad.phone.sis');
+      if (chores) want.push('dad.phone.chore');
+    } else if (rule === 'ps') { if (n >= 2) want.push('dad.ps.again'); if (night) want.push('dad.ps.night'); }
+    else if (rule === 'eat') want.push(kid ? 'dad.eat.kid' : 'dad.eat', 'dad.eat');
+    else if (rule === 'idle') { if (d < 1.9) want.push('dad.idle.near'); if (room === 'kitchen') want.push('dad.idle.kitchen'); if (room === 'yard') want.push('dad.idle.yard'); }
+    else if (rule === 'run') { if (kid) want.push('dad.run.kid'); }
+    else if (rule === 'sneak') { if (d < 2.6) want.push('dad.sneak.near'); }
+    else if (rule === 'tv') { if (g.tv && g.tv.prog === 'match') want.push('dad.tv.match'); }
+    const ok = want.filter(voiced);
+    if (!ok.length) return base;
+    if (ok[0].endsWith('.again')) return ok[0];            // caught at it again: that comes first
+    return Math.random() < 0.75 ? pick(ok) : base;
+  }
+  // found hiding: behind the curtain, under the bed, in the wardrobe, under the table each get their own
+  foundCat() {
+    const h = this.game.player.hide, k = h && { curtain: 'dad.found.curtain', bed: 'dad.found.bed', crouch: 'dad.found.bed', wardrobe: 'dad.found.wardrobe', table: 'dad.found.table' }[h.kind];
+    return k && voiced(k) && Math.random() < 0.8 ? k : 'dad.found';
+  }
+  // what he finds on the floor
+  messCat(kind) {
+    const k = { water: 'dad.mess.water', tea: 'dad.mess.tea', coffee: 'dad.mess.tea', plate: 'dad.mess.glass', vase: 'dad.mess.glass' }[kind];
+    return k && voiced(k) && Math.random() < 0.8 ? k : 'dad.mess';
+  }
+  // Nothing wrong at all, and he still finds something to say: your hair, your pyjamas at noon, the neighbours' son,
+  // the electricity bill. Only when he is calm, can see you close by and you are not busy.
+  tease() {
+    const g = this.game, p = g.player;
+    if (!this.seen || this.talking || g.flags.guests || g.over || this.state !== 'routine' || p.hidden || p.act || g.stay) return;
+    if (g.now < this.scoldCd + 10 || g.now < this.teaseCd || this.dist(p) > 6 || g.segT < 20) return;
+    if (g.interaction && g.interaction.running) return;
+    const seg = g.seg, mins = seg.clock[0] + (seg.clock[1] - seg.clock[0]) * Math.min(1, g.segT / seg.time);
+    const now = [];
+    if (g.wearing === 'pyjama' && mins > 10 * 60 + 30) now.push('dad.tease.pyjama');
+    if (g.now - this.lastScold > 18 && g.now - this.lastScold < 75) now.push('dad.tease.after');
+    if (seg.tod === 'morning') now.push('dad.tease.morning');
+    if (g.day.id === 'fri') now.push('dad.tease.friday');
+    const fits = now.filter(voiced), any = ['dad.tease.' + g.playerKey, 'dad.tease.neighbor', 'dad.tease.bill'].filter(voiced);
+    if (!fits.length && !any.length) return;
+    this.teaseCd = g.now + rnd(55, 95);
+    this.say(fits.length && (Math.random() < 0.65 || !any.length) ? pick(fits) : pick(any));
   }
 
   scold() {
@@ -291,8 +349,12 @@ export class Dad extends Actor {
 
   fix(dev) {
     const g = this.game;
-    const cat = { light: 'dad.light', ac: 'dad.ac', tv: 'dad.tvon', fridge: 'dad.fridge', heater: 'dad.mon', console: 'dad.ps' }[dev.type];
-    const index = dev.type === 'heater' ? 0 : dev.type === 'console' ? 1 : undefined;
+    let cat = { light: 'dad.light', ac: 'dad.ac', tv: 'dad.tvon', fridge: 'dad.fridge', heater: 'dad.mon', console: 'dad.ps' }[dev.type];
+    let index = dev.type === 'heater' ? 0 : dev.type === 'console' ? 1 : undefined;
+    // which light, and when: the bathroom's, the kitchen's, one burning in broad daylight; the fridge in the middle of the night
+    const alt = dev.type === 'light' ? (dev.room === 'bath' ? 'dad.light.bath' : dev.room === 'kitchen' ? 'dad.light.kitchen' : !g.world.dark ? 'dad.light.day' : null)
+      : dev.type === 'fridge' ? (g.seg && g.seg.tod === 'night' ? 'dad.fridge.night' : 'dad.fridge.long') : null;
+    if (alt && voiced(alt) && Math.random() < 0.7) { cat = alt; index = undefined; }
     this.say(cat, { index, loud: true });
     dev.ignoreUntil = g.now + 12;
     g.stats.wasted++;
@@ -330,7 +392,8 @@ export class Dad extends Actor {
     const p = this.game.player;
     if (!p.hidden) { this.lastSeen = { x: p.x, z: p.z }; this.lastSeenT = this.game.now + 1.5; }
     this.wentLast = false; this.searching = false;
-    this.say('dad.come', { loud: true });
+    // (he finishes what he was shouting first)
+    const g = this.game; if (this.talking) g.later(this.talkUntil - g.now + 0.25, () => { if (this.state === 'chase') this.say('dad.come', { loud: true }); }); else this.say('dad.come', { loud: true });
     this.game.toast(pending === 'lecture' ? 'أبوك جاي يعطيك محاضرة… اهرب أو استسلم' : 'أبوك جاي يصادر!', 'bad');
   }
 
@@ -380,7 +443,12 @@ export class Dad extends Actor {
         this.camT -= dt;
         if (this.camT <= 0) { this.camT = rnd(14, 24); this.onCams = 3.4; if (!g.camsTold) { g.camsTold = true; g.toast('أبوك بيطلّ عالكاميرات 📹 الممر والمطبخ والحوش مكشوفين', 'bad'); } }
         this.mutterT -= dt;
-        if (this.mutterT <= 0) { this.mutterT = rnd(14, 26); if (!this.talking) this.say(Math.random() < 0.6 ? 'dad.news' : 'dad.mutter'); }
+        if (this.mutterT <= 0) {
+          this.mutterT = rnd(14, 26);
+          // he talks back to whatever is on: the news, the match, the series
+          const w = 'dad.watch.' + (g.tv ? g.tv.prog : 'news');
+          if (!this.talking) this.say(voiced(w) && Math.random() < 0.6 ? w : Math.random() < 0.6 ? 'dad.news' : 'dad.mutter');
+        }
       } else if (st.act === 'nap') {
         this.mutterT -= dt; if (this.mutterT <= 0) { this.mutterT = 3.4; sfx.snore({ x: this.x, y: 0.7, z: this.z }); }
       } else if (st.act === 'look') {
@@ -393,6 +461,8 @@ export class Dad extends Actor {
       this.cmdT -= dt;
       if (this.cmdT <= 0) { this.cmdT = rnd(cfg.cmdEvery[0], cfg.cmdEvery[1]); g.issueCommand(pick(cfg.cmds)); }
     }
+    // a remark about nothing in particular, now and then
+    if (this.state === 'routine') { this.teaseT -= dt; if (this.teaseT <= 0) { this.teaseT = rnd(8, 14); this.tease(); } }
     // Wednesday: surprise visits to the desk
     if (cfg.deskCheck && this.state === 'routine') {
       this.checkDeskT -= dt;
@@ -414,7 +484,12 @@ export class Dad extends Actor {
     const g = this.game, s = g.world.spots.carhorn;
     if (this.phase === 'idle') { this.phase = 'going'; this.goTo(s.x, s.z + 0.3, { speed: 1.6, onArrive: () => { this.phase = 'doing'; this.face(15, 5.5); this.setPose('m_idle_waiting_01'); } }); }
     this.honkT -= dt;
-    if (this.honkT <= 0) { this.honkT = rnd(9, 13); sfx.horn({ x: 19.3, y: 1, z: 2.9 }); g.later(1.3, () => this.say('dad.sun', { loud: true })); g.noise(19.3, 2.9, 3, 'horn', 'dad'); }
+    if (this.honkT <= 0) {
+      this.honkT = rnd(9, 13); sfx.horn({ x: 19.3, y: 1, z: 2.9 }); g.noise(19.3, 2.9, 3, 'horn', 'dad');
+      // not a shout with every horn; and the shouting gets more desperate as the bell gets nearer
+      const u = g.segT / (g.seg.time || 150), cat = u < 0.35 ? 'dad.sun.early' : u < 0.75 ? 'dad.sun.mid' : 'dad.sun.late';
+      if (Math.random() < 0.65) g.later(1.3, () => this.say(voiced(cat) && Math.random() < 0.8 ? cat : 'dad.sun', { loud: true }));
+    }
     g.addAnger(dt * 0.3, 'late', true);      // every second he waits in the car costs you
   }
 
@@ -567,7 +642,7 @@ export class Dad extends Actor {
       if (sawEnter) {
         this.goTo(p.hide.x, p.hide.z, { speed: 2.2, onArrive: () => {
           if (this.state !== 'chase') return;
-          if (p.hidden) { this.say('dad.found', { loud: true }); g.unhide(true); g.addAnger(8, 'found'); g.later(0.9, () => g.punish(this.pending)); } else { this.setState('routine'); this.phase = 'idle'; }
+          if (p.hidden) { this.say(this.foundCat(), { loud: true }); g.unhide(true); g.addAnger(8, 'found'); g.later(0.9, () => g.punish(this.pending)); } else { this.setState('routine'); this.phase = 'idle'; }
         } });
       } else { g.addAnger(-4, 'lost'); g.stats.escapes++; g.toast('ما لقاك!', 'good'); this.setState('routine'); this.phase = 'idle'; this.grace = g.now + 3; }
     });
