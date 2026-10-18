@@ -8,7 +8,7 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { loft, spline, rod, tube, mesh, paint } from './delivery.js';
+import { loft, spline, grid, rod, tube, mesh, paint } from './delivery.js';
 import { sfx } from './audio.js';
 import { Outfit, WARDROBE } from './outfit.js';
 
@@ -76,6 +76,7 @@ function mats() {
     sign1: m({ map: sign('بندورة', '٣ كيلو بدينار'), roughness: 0.9, side: THREE.DoubleSide }), sign2: m({ map: sign('خيار', 'الكيلو ٥٠ قرش'), roughness: 0.9, side: THREE.DoubleSide }), sign3: m({ map: sign('بطيخ', 'الكيلو ٣٥ قرش'), roughness: 0.9, side: THREE.DoubleSide }),
     bag: m({ color: 0x111113, roughness: 0.35, metalness: 0.1 }), brolly: m({ map: brolly, roughness: 0.8, side: THREE.DoubleSide }),
     hose: m({ color: 0xe0782e, roughness: 0.6 }), reg: m({ color: 0x23324c, roughness: 0.4, metalness: 0.3 }),
+    glass: new THREE.MeshStandardMaterial({ color: 0x0a1218, roughness: 0.06, metalness: 0.35, envMapIntensity: 0.7, side: THREE.DoubleSide }),
   };
   return MT;
 }
@@ -134,6 +135,14 @@ export function makeTruck(kind) {
     return z < 0.93 && y > 1.47 && y < 1.84 && Math.abs(x) < 0.56;                                               // the back window
   };
   add(mesh(loft('z', 0.9, 2.48, (z) => ({ a: 0, ha: ww(z), b: (yt(z) + 0.66) / 2, hb: (yt(z) - 0.66) / 2, n: 7, nb: 9 }), { nu: 52, nv: 44, r0: 0.03, r1: 0.05, col: (x, y, z, Q) => (glass(x, y, z, Q) ? GLASS : BLUE) }), A.cab));
+  // the glass itself, laid on the skin: dark, tinted, catching a little of the sky
+  const sec = (z) => { const t = yt(z); return { ha: ww(z), b: (t + 0.66) / 2, hb: (t - 0.66) / 2 }; };
+  const topY = (x, z) => { const Q = sec(z); return Q.b + Q.hb * Math.max(0, 1 - Math.abs(x / Q.ha) ** 7) ** (1 / 7); };
+  add(mesh(grid(16, 8, (u, v) => { const z = 2.045 + v * 0.18, x = (u * 2 - 1) * (sec(z).ha - 0.09); return [x, topY(x, z) + 0.006, z + 0.006]; }), A.glass));
+  for (const s of [-1, 1]) {
+    add(mesh(grid(10, 6, (u, v) => { const y = 1.33 + v * 0.55, z = 1.22 + u * (0.78 - (y - 1.3) * 0.15); return [s * (sec(z).ha + 0.005), y, z]; }), A.glass));
+  }
+  const rw = add(mesh(new THREE.PlaneGeometry(1.08, 0.35), A.glass, 0, 1.655, 0.893)); rw.rotation.y = Math.PI;
   // front: the lower panel, bumper, chrome grille, headlights and indicators, the plate
   add(mesh(new RoundedBoxGeometry(1.66, 0.3, 0.2, 2, 0.05), A.blue, 0, 0.62, 2.36));
   add(mesh(new RoundedBoxGeometry(1.78, 0.22, 0.2, 2, 0.06), A.black, 0, 0.47, 2.44));
