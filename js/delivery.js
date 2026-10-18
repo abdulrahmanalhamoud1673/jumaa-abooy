@@ -427,7 +427,7 @@ export class Delivery {
     if (!this.bag) { this.bag = talabatBag(); g.scene.add(this.bag); }
     this.x = S.x - 0.72; this.z = -16; this.v = 0;
     this.sc.group.visible = true; this.sc.group.position.set(this.x, S.y, this.z); this.sc.group.rotation.set(0, 0, 0); this.sc.setLid(0); this.sc.setStand(0);
-    this.bag.visible = false; this.suit();
+    this.bag.visible = false; this.suit(); if (g.chat && Math.random() < 0.7) g.later(8, () => g.chat.event('talabat'));
     this.engine = sfx.engine({ x: this.x, y: 0.6, z: this.z }, 2.1);
     this.state = 'ride'; this.t = 0;
     const night = g.world.dark; this.sc.lamp.emissiveIntensity = night ? 2.4 : 1.3; this.sc.tail.emissiveIntensity = night ? 1.2 : 0.25;

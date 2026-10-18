@@ -7,6 +7,7 @@ import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.j
 import { texMat, flatMat } from './assets.js';
 import { garment } from './props.js';
 import { makeCar, carsTime } from './cars.js';
+import { buildRoof } from './roof.js';
 
 export const H = 2.9;            // ceiling height
 const WT = 0.16;                 // wall thickness
@@ -460,7 +461,7 @@ export class World {
     this.box(M.asphalt, 80, 0.1, 80, 11, -0.12, 6);
     this.box(M.ceiling, 16.2, 0.2, 12.2, 8, H + 0.1, 6);
     this.box(M.stone, 16.5, 0.5, 0.2, 8, H + 0.45, -0.1); this.box(M.stone, 16.5, 0.5, 0.2, 8, H + 0.45, 12.1);
-    this.box(M.stone, 0.2, 0.5, 12.4, -0.1, H + 0.45, 6); this.box(M.stone, 0.2, 0.5, 12.4, 16.1, H + 0.45, 6);
+    this.box(M.stone, 0.2, 0.5, 12.4, -0.1, H + 0.45, 6); this.box(M.stone, 0.2, 0.5, 0.3, 16.1, H + 0.45, -0.05); this.box(M.stone, 0.2, 0.5, 11.25, 16.1, H + 0.45, 6.575);      // (an opening for the stairs)
 
     // outer walls
     this.wall(0, 0, 16, 0, [{ a: 1.4, b: 3.0, kind: 'window', inside: 1 }, { a: 5.4, b: 6.1, kind: 'small' },
@@ -1005,13 +1006,13 @@ export class World {
     this.rbox(M.dark, 0.09, 0.2, 0.09, 0.02, 16.16, 2.05, 4.7); this.sph(lantern, 0.06, 16.18, 2.0, 4.7);
     // the family car (live: it gets washed)
     const fam = makeCar('sedan', { color: 0xf4f4f2, low: this.low, plate: '12-34567' });
-    fam.group.position.set(19.3, 0, 2.9); fam.setClean(0); this.live(fam.group);
-    this.car = Object.assign(fam, { x: 19.3, z: 2.9 });
-    this.solid(18.42, 0.75, 20.18, 5.05, 1.4);
-    this.spots.car1 = { id: 'car1', x: 17.95, z: 2.25, face: Math.PI / 2, room: 'yard', label: 'السيارة' };
-    this.spots.car2 = { id: 'car2', x: 17.95, z: 3.55, face: Math.PI / 2, room: 'yard', label: 'السيارة' };
-    this.spots.car3 = { id: 'car3', x: 20.7, z: 2.9, face: -Math.PI / 2, room: 'yard', label: 'السيارة' };
-    this.spots.carhorn = { id: 'carhorn', x: 19.3, z: 5.5, face: Math.PI, room: 'yard' };
+    fam.group.position.set(19.3, 0, 3.35); fam.setClean(0); this.live(fam.group);
+    this.car = Object.assign(fam, { x: 19.3, z: 3.35 });
+    this.solid(18.42, 1.2, 20.18, 5.5, 1.4);
+    this.spots.car1 = { id: 'car1', x: 17.95, z: 2.7, face: Math.PI / 2, room: 'yard', label: 'السيارة' };
+    this.spots.car2 = { id: 'car2', x: 17.95, z: 4.0, face: Math.PI / 2, room: 'yard', label: 'السيارة' };
+    this.spots.car3 = { id: 'car3', x: 20.7, z: 3.35, face: -Math.PI / 2, room: 'yard', label: 'السيارة' };
+    this.spots.carhorn = { id: 'carhorn', x: 19.3, z: 5.95, face: Math.PI, room: 'yard' };
     // tap + bucket on the house wall
     this.spots.tap = { id: 'tap', x: 16.75, z: 8.0, face: -Math.PI / 2, room: 'yard', label: 'الحنفية' };
     // clothesline
@@ -1026,7 +1027,7 @@ export class World {
       this.spots['plant' + (i + 1)] = { id: 'plant' + (i + 1), x, z: z - 0.65, face: 0, room: 'yard', label: 'الزريعة' };
     });
     // the lemon tree in its bed: a bent trunk, boughs, leafy clumps, fruit
-    const bark = flatMat(0x5b4028, { rough: 1 }), leaves = [flatMat(0x2f6a2e, { rough: 0.9 }), flatMat(0x4c8c38, { rough: 0.9 })], tx = 21.2, tz = 0.95;
+    const bark = flatMat(0x5b4028, { rough: 1 }), leaves = [flatMat(0x2f6a2e, { rough: 0.9 }), flatMat(0x4c8c38, { rough: 0.9 })], tx = 21.2, tz = 2.45;
     { const t = new THREE.TorusGeometry(0.42, 0.06, 6, 22); t.rotateX(Math.PI / 2); t.translate(tx, 0.04, tz); this.push(M.stone, t); }
     this.cyl(flatMat(0x4a3423, { rough: 1 }), 0.4, 0.4, 0.05, tx, 0.03, tz, 20);
     this.tube(bark, [[tx, 0, tz], [tx + 0.04, 0.5, tz + 0.02], [tx - 0.05, 1.0, tz - 0.02], [tx - 0.02, 1.55, tz + 0.03]], 0.085, 8);
@@ -1041,7 +1042,7 @@ export class World {
     };
     [[0, 2.25, 0, 0.62], [-0.55, 2.05, 0.3, 0.5], [0.5, 2.1, 0.35, 0.5], [0.1, 2.3, -0.5, 0.48], [-0.3, 2.55, -0.1, 0.45], [0.35, 2.6, 0.1, 0.42], [-0.1, 1.9, 0.55, 0.4], [0.55, 1.85, -0.3, 0.38], [-0.6, 2.3, -0.4, 0.4]]
       .forEach(([dx, dy, dz, r], i) => clump(leaves[i % 2], r, tx + dx, dy, tz + dz, i * 1.7));
-    this.solid(21.05, 0.8, 21.35, 1.1, 2);
+    this.solid(21.05, 2.3, 21.35, 2.6, 2);
     for (const [dx, dy, dz] of [[-0.5, 1.68, 0.5], [0.3, 1.6, 0.72], [-0.1, 1.52, 0.8], [0.68, 1.62, -0.2], [0.8, 1.8, 0.5], [-0.82, 1.82, 0.05], [0.1, 1.72, -0.75]]) this.sph(flatMat(0xf2d21f, { rough: 0.6 }), 0.055, tx + dx, dy, tz + dz, 1.25);
     this.solid(21.2, 7.75, 21.7, 8.25, 0.8);
     this.spots.yardbin = { id: 'yardbin', x: 20.85, z: 8.0, face: Math.PI / 2, room: 'yard', label: 'حاوية الزبالة' };
@@ -1057,11 +1058,13 @@ export class World {
       }
       this.lathe(M.white, [[0, 0], [0.6, 0], [0.62, 0.1], [0.62, 0.95], [0.5, 1.1], [0.15, 1.18], [0, 1.18]], x - w / 4, h + 0.45, z, 14); this.box(M.steel, 1.3, 0.2, 1.3, x - w / 4, h + 0.35, z);
     }
-    // our own roof tank + dish
-    this.lathe(M.white, [[0, 0], [0.7, 0], [0.72, 0.1], [0.72, 1.1], [0.58, 1.28], [0.18, 1.36], [0, 1.36]], 3, H + 0.85, 3, 16); this.box(M.steel, 1.5, 0.08, 1.5, 3, H + 0.81, 3);
-    for (const [ex, ez] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) this.cyl(M.steel, 0.03, 0.03, 0.6, 3 + ex * 0.68, H + 0.5, 3 + ez * 0.68, 6);
-    { const g = new THREE.LatheGeometry([[0, 0], [0.25, 0.03], [0.45, 0.11], [0.5, 0.15], [0.49, 0.16], [0.44, 0.125], [0.25, 0.045], [0, 0.015]].map(([r, y]) => new THREE.Vector2(r, y)), 20); g.rotateX(0.9); g.translate(12, H + 1.05, 9); this.push(M.white, g); }
-    this.cyl(M.steel, 0.03, 0.03, 0.8, 12, H + 0.6, 9, 6);
+    // and the neighbours' roofs have their dishes too, turned the same way as everyone's
+    for (const [x, z, , h] of [[31, 2, 9, 9], [30, 15, 8, 6.5], [-9, 4, 9, 7.5], [6, -9, 12, 8.5], [20, -10, 9, 6], [8, 21, 14, 7], [24, 22, 8, 9.5], [-8, 18, 8, 6]]) {
+      const g = new THREE.LatheGeometry([[0, 0], [0.25, 0.03], [0.45, 0.11], [0.5, 0.15], [0.49, 0.16], [0.44, 0.125], [0.25, 0.045], [0, 0.015]].map(([r, y]) => new THREE.Vector2(r, y)), 18);
+      g.rotateX(-0.85); g.rotateY(0.5); g.translate(x + 1.5, h + 1.3, z + 1); this.push(M.white, g); this.cyl(M.steel, 0.03, 0.03, 1.0, x + 1.5, h + 0.75, z + 1, 6);
+    }
+    // our own roof: tanks, heater, dishes, rebar, the stairs up to it (js/roof.js)
+    buildRoof(this);
   }
 
   finish() {
@@ -1122,6 +1125,7 @@ export class World {
 
   // Push a circle out of the furniture and walls. Returns true if it touched something.
   collide(p, r = 0.26) {
+    if (p.y > 2.5 && this.roofColliders) return this.collideRoof(p, r);
     let hit = false;
     for (let pass = 0; pass < 2; pass++) for (const c of this.colliders) {
       const nx = Math.max(c.x0, Math.min(p.x, c.x1)), nz = Math.max(c.z0, Math.min(p.z, c.z1));
@@ -1139,8 +1143,20 @@ export class World {
     return hit;
   }
 
+  collideRoof(p, r) {
+    let hit = false;
+    for (let pass = 0; pass < 2; pass++) for (const c of this.roofColliders) {
+      const nx = Math.max(c.x0, Math.min(p.x, c.x1)), nz = Math.max(c.z0, Math.min(p.z, c.z1)), dx = p.x - nx, dz = p.z - nz, d2 = dx * dx + dz * dz;
+      if (d2 >= r * r) continue;
+      hit = true;
+      if (d2 > 1e-8) { const d = Math.sqrt(d2); p.x = nx + dx / d * r; p.z = nz + dz / d * r; } else { const l = p.x - c.x0, rr = c.x1 - p.x, t = p.z - c.z0, b = c.z1 - p.z, m = Math.min(l, rr, t, b); if (m === l) p.x = c.x0 - r; else if (m === rr) p.x = c.x1 + r; else if (m === t) p.z = c.z0 - r; else p.z = c.z1 + r; }
+    }
+    // (the landing at the head of the stairs is the one way off it)
+    p.x = Math.max(0.35, Math.min(p.z < 0.95 ? 16.25 : 15.65, p.x)); p.z = Math.max(0.35, Math.min(11.65, p.z));
+    return hit;
+  }
   // Distance along a ray (2D) to the first collider at least minH tall, or `max`.
-  ray(ox, oz, dx, dz, max, minH = 1.2) {
+  ray(ox, oz, dx, dz, max, minH = 1.2, roof = false) {
     let best = max;
     const test = (c) => {
       let t0 = 0, t1 = best;
@@ -1154,6 +1170,7 @@ export class World {
       }
       if (t0 < best) best = t0;
     };
+    if (roof) { for (const c of this.roofColliders || []) if (c.h >= minH) test(c); return best; }
     for (const c of this.colliders) if (c.h >= minH) test(c);
     for (const d of this.doors) if (d.open < 0.35) {
       test(d.alongX ? { x0: d.x - d.width / 2, x1: d.x + d.width / 2, z0: d.z - 0.04, z1: d.z + 0.04 } : { x0: d.x - 0.04, x1: d.x + 0.04, z0: d.z - d.width / 2, z1: d.z + d.width / 2 });

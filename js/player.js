@@ -235,7 +235,7 @@ export class Player {
     // while you work, the camera drifts round to the side so you can see your hands
     const f = this.focus;
     if (f && this.lookIdle > 0.5) { this.yaw = lerpAngle(this.yaw, f.yaw, Math.min(1, dt * 2.6)); this.pitch += (0.52 - this.pitch) * Math.min(1, dt * 2.6); }
-    const headY = c.lying ? c.pos.y + 0.35 : (this.crouched ? this.eye * 0.72 : this.eye) + 0.12;
+    const headY = c.lying ? c.pos.y + 0.35 : (this.crouched ? this.eye * 0.72 : this.eye) + 0.12 + c.pos.y;
     let tx = c.pos.x, tz = c.pos.z;
     if (c.lying) { tx -= Math.sin(c.heading) * c.height * 0.68; tz -= Math.cos(c.heading) * c.height * 0.68; }      // a sleeper's middle, not their feet
     const cp = Math.cos(this.pitch), sp = Math.sin(this.pitch);
@@ -245,9 +245,9 @@ export class Player {
     const ox = tx + sx * 0.6, oz = tz + sz * 0.6;
     const flat = Math.hypot(dx, dz) || 1e-6;
     const maxFlat = (f ? 2.05 : this.dist) * flat;
-    const outdoors = tx > 16.1;
+    const up = c.pos.y > 2.5, outdoors = tx > 16.1 || up || c.pos.y > 0.4;      // (on the roof, or on the stairs to it, the sky is the ceiling)
     let d = f ? 2.05 : this.dist;
-    const free = w.ray(ox, oz, dx / flat, dz / flat, maxFlat + 0.3, 1.5);
+    const free = w.ray(ox, oz, dx / flat, dz / flat, maxFlat + 0.3, 1.5, up);
     if (free < maxFlat + 0.3) d = Math.max(0.35, (free - 0.22) / flat);
     let y = headY + sp * d;
     if (!outdoors && y > H - 0.18) { d = Math.max(0.35, (H - 0.18 - headY) / Math.max(0.05, sp)); y = headY + sp * d; }

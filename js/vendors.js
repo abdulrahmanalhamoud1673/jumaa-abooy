@@ -409,14 +409,14 @@ export class Vendors {
         { give: 'gasEmpty', to: 'gasman', label: 'أعطي الفاضية لأبو علي' },
         { pick: 'gasFull', at: 'gate', secs: 1.4, label: 'خذ الجرّة المليانة' },
         { drop: 'gasFull', at: 'gasCyl', secs: 4.2, label: 'ركّب الجرّة' }] }, { cmd: 'gas' });
-      g.tasks.push(t); g.stepBegin(t); sfx.alarm();
+      g.tasks.push(t); g.stepBegin(t); sfx.alarm(); if (g.chat) g.chat.event('gas');
       if (!g.dad.away) g.dad.say('dad.gas.arrive', { loud: true, far: true });
     } else {
       const t = g.makeTask({ id: 'veg', title: 'جيب بندورة وخيار من سيارة الخضرة', kind: 'mom', time: 170, steps: [
         { use: 'gate', secs: 1.2, label: 'اطلب من أبو أحمد' },
         { pick: 'veg', at: 'gate', secs: 1.3, label: 'خذ الخضرة وادفع' },
         { drop: 'veg', at: 'fridge', secs: 2.6, label: 'حط الخضرة بدرج الثلاجة' }] });
-      g.tasks.push(t); g.stepBegin(t); sfx.alarm();
+      g.tasks.push(t); g.stepBegin(t); sfx.alarm(); if (g.chat) g.chat.event('veg');
       g.mom.say('mom.veg', { loud: true, far: true });
     }
   }

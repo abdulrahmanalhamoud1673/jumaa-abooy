@@ -17,6 +17,8 @@ import { Outfit } from './outfit.js';
 import { Cctv } from './cctv.js';
 import { Delivery } from './delivery.js';
 import { Vendors } from './vendors.js';
+import { Roof } from './roof.js';
+import { Chat } from './chat.js';
 
 const rnd = (a, b) => a + Math.random() * (b - a);
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -57,6 +59,8 @@ export class Game {
     this.cctv = new Cctv(this);
     this.delivery = new Delivery(this);
     this.vendors = new Vendors(this);
+    this.roof = new Roof(this);
+    this.chat = new Chat(this);
     for (const k of ['big', 'kid', 'sis']) if (this.chars[k]) this.chars[k].outfit = new Outfit(this.chars[k]);
     // doors are heard only from nearby: the whole family walks through them all day
     this.world.onDoor = (d, opening) => { const p = this.player; if (!p || Math.hypot(d.x - p.x, d.z - p.z) > 8) return; const pos = { x: d.x, y: 1, z: d.z }; if (opening) sfx.door(pos); else sfx.doorShut(pos); };
@@ -99,7 +103,7 @@ export class Game {
     for (const d of w.doors) d.locked = false;
     // clear the floor
     this.clearProps();
-    this.messes = []; this.pickups = []; this.projectiles = []; this.mishaps.reset(); this.street.reset(seg); this.delivery.reset(); this.vendors.reset(seg);
+    this.messes = []; this.pickups = []; this.projectiles = []; this.mishaps.reset(); this.street.reset(seg); this.delivery.reset(); this.vendors.reset(seg); this.roof.reset(seg); this.chat.reset(seg);
     this.vases = w.fragile.map((f) => { const m = vaseMesh(f.big); m.position.set(f.x, f.y, f.z); this.props.add(m); return { ...f, mesh: m, broken: false }; });
     if (p.carrying) { this.scene.remove(p.carrying.mesh); p.carrying = null; }
     p.state = 'free'; p.act = null; p.pose = null; p.phoneOut = false; p.sneaking = false; p.hide = null; p.camOverride = null; p.char.lying = 0; p.char.visible = true; p.char.pos.y = 0; p.char.overlay(null);
@@ -465,7 +469,7 @@ export class Game {
     let [x, z] = this.world.nearestFree(p.x - Math.sin(ang) * 1.25, p.z - Math.cos(ang) * 1.25);
     dad.char.pos.set(x, 0, z); dad.face(p.x, p.z); p.char.heading = Math.atan2(dad.x - p.x, dad.z - p.z);
     dad.setPose('m_gestic_talk_angry_01_xyz'); p.setPose('m_gestic_listen_sad_01');
-    const dur = this.say(dad, 'dad.lecture', { loud: true, far: true });
+    const dur = this.say(dad, 'dad.lecture', { loud: true, far: true }); this.chat.event('lecture');
     const n = dur > 10 ? 4 : 3, prompts = [];
     for (let i = 0; i < n; i++) prompts.push({ at: 1.8 + (dur - 3.2) * (i / (n - 1)) + rnd(-0.3, 0.3), state: 0 });
     this.lecture = { t: 0, dur, prompts, hits: 0, ending: false };
@@ -641,9 +645,13 @@ export class Game {
   // ---------- what can I do right here? ----------
   findInteraction() {
     const p = this.player, w = this.world, out = [];
-    const near = (o, r = 1.25) => (o ? Math.hypot(o.x - p.x, o.z - p.z) : 99) < r;
+    // (things are only in reach on your own level: the roof's on the roof, the house's in the house)
+    const up = p.char.pos.y > 2.5, lvl = (o) => (o.char ? o.char.pos.y : o.y || 0) > 2.5;
+    const near = (o, r = 1.25) => (o && lvl(o) === up ? Math.hypot(o.x - p.x, o.z - p.z) : 99) < r;
     const dist = (o) => Math.hypot(o.x - p.x, o.z - p.z);
     const add = (prio, d, o) => out.push({ prio, d, ...o });
+    if (p.state === 'climb' || p.state === 'help') return null;
+    this.roof.offer(add, near, dist);
     const kid = this.playerKey === 'kid';
     if (this.stay) return { key: 'stay', label: this.stay.step.lie ? 'قوم من التخت' : 'قوم', secs: 0, run: () => this.exitStay() };
     if (p.hidden) return { key: 'unhide', label: 'اطلع', secs: 0, run: () => this.unhide() };
@@ -717,7 +725,7 @@ export class Game {
     }
     // hiding places
     if (!p.carrying) for (const h of w.hides) if (h.kind !== 'blanket' && (!h.kidOnly || kid) && near(h, 1.05)) add(5, dist(h), { key: h.id, label: h.label, secs: 0.25, run: () => this.hideIn(h) });
-    if (!out.length) return p.carrying ? { key: 'drop', label: `نزّل ${ITEMS[p.carrying.item] || ''}`, secs: 1.0, weak: true, fx: { name: 'setDown', floor: true }, run: () => this.dropCarried() } : null;
+    if (!out.length) return p.carrying && !up ? { key: 'drop', label: `نزّل ${ITEMS[p.carrying.item] || ''}`, secs: 1.0, weak: true, fx: { name: 'setDown', floor: true }, run: () => this.dropCarried() } : null;
     // What you are standing next to wins. Handing over or putting down what you carry always comes first; after that it is
     // distance, with a small head start for the day's jobs over switches and hiding places.
     const score = (o) => (o.prio <= 0 ? o.d - 10 : o.d + [0, -0.3, -0.2, 0, 0, 0.25][o.prio]);
@@ -819,6 +827,8 @@ export class Game {
     this.street.update(dt);
     this.delivery.update(dt);
     this.vendors.update(dt);
+    this.roof.update(dt);
+    this.chat.update(dt);
     if (this.stay && this.stay.task) { const st = this.stay; this.stations.stayTick(st.step, st.task.prog / (st.step.secs || 1), dt); }
     this.stations.update(dt, this.app.renderer.domElement.height, this.camera.fov);
 

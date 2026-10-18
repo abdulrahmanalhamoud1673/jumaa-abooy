@@ -218,6 +218,47 @@ blockquote .who { display: block; color: var(--gold); font-size: 12px; font-weig
 #rotate p { margin: 0; font-weight: 700; font-size: 18px; }
 @keyframes tilt { 0%, 25% { transform: rotate(0) } 60%, 100% { transform: rotate(-90deg) } }
 @media (orientation: portrait) { .touch:not(.anyway) #rotate { display: flex; } }
+/* ---------- the family group on the phone ---------- */
+#chat { inset-inline-end: max(14px, 2vw); top: 9vh; width: min(350px, 38vw); height: min(620px, 80vh); display: none; flex-direction: column;
+  border-radius: 26px; overflow: hidden; pointer-events: auto; border: 7px solid #111; box-shadow: 0 18px 40px rgba(0, 0, 0, .55); background: #efe6dc;
+  font-family: var(--font); color: #111b21; direction: rtl; }
+#chat.show { display: flex; animation: chatIn .22s ease-out; }
+@keyframes chatIn { from { transform: translateY(30px); opacity: 0 } to { transform: none; opacity: 1 } }
+#chat .ch-head { display: flex; align-items: center; gap: 8px; background: #1f6f5c; color: #fff; padding: 9px 10px; flex: none; }
+#chat .ch-back { font-size: 24px; line-height: 1; opacity: .9; } #chat .ch-ic { margin-inline-start: auto; opacity: .9; }
+#chat .ch-av, #chatNote .ch-av { width: 34px; height: 34px; border-radius: 50%; background: #d9e4df; display: grid; place-items: center; font-size: 18px; flex: none; }
+#chat .ch-t { display: flex; flex-direction: column; min-width: 0; } #chat .ch-t b { font-size: 15px; }
+#chat .ch-t small { font-size: 11px; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#chat .ch-list { flex: 1; overflow-y: auto; padding: 8px 9px; display: flex; flex-direction: column; gap: 5px;
+  background-color: #e8ddd2; background-image: radial-gradient(rgba(0, 0, 0, .05) 1px, transparent 1.3px); background-size: 14px 14px; }
+#chat .ch-date { align-self: center; background: #e1f3fb; color: #54656f; font-size: 11px; padding: 3px 10px; border-radius: 8px; margin: 2px 0 4px; }
+#chat .ch-msg { max-width: 84%; padding: 5px 8px 4px; border-radius: 9px; font-size: 13.5px; line-height: 1.45; position: relative; box-shadow: 0 1px .5px rgba(0, 0, 0, .13); display: flex; flex-direction: column; }
+#chat .ch-msg.them { align-self: flex-start; background: #fff; border-start-start-radius: 2px; }
+#chat .ch-msg.me { align-self: flex-end; background: #d9fdd3; border-start-end-radius: 2px; }
+#chat .ch-name { font-size: 12px; } #chat .ch-fwd { font-size: 11px; color: #667781; font-style: italic; }
+#chat .ch-msg img { width: 100%; border-radius: 6px; margin: 2px 0; display: block; }
+#chat .ch-time { align-self: flex-end; font-size: 10px; color: #667781; margin-top: 1px; } #chat .ch-time em { color: #53bdeb; font-style: normal; }
+#chat .ch-voice { display: flex; align-items: center; gap: 7px; min-width: 190px; cursor: pointer; padding: 3px 0; }
+#chat .ch-voice .pl { width: 30px; height: 30px; border-radius: 50%; background: #1f6f5c; color: #fff; display: grid; place-items: center; font-size: 13px; flex: none; }
+#chat .ch-voice .wv { display: flex; align-items: center; gap: 2px; flex: 1; } #chat .ch-voice .wv i { width: 3px; border-radius: 2px; background: #9aa6ad; display: block; }
+#chat .ch-voice.on .wv i { background: #1f9e8f; } #chat .ch-voice small { font-size: 10px; color: #667781; }
+#chat .ch-reps { display: flex; gap: 6px; padding: 6px 8px 2px; flex-wrap: wrap; justify-content: center; background: #e8ddd2; flex: none; }
+#chat .ch-reps button { border: 0; border-radius: 16px; background: #fff; color: #1f6f5c; font: 700 13px var(--font); padding: 6px 11px; box-shadow: 0 1px 2px rgba(0, 0, 0, .15); cursor: pointer; }
+#chat .ch-reps button:active { transform: scale(.96); } #chat .ch-reps kbd { font: 700 10px sans-serif; color: #8696a0; margin-inline-end: 4px; }
+.touch #chat .ch-reps kbd { display: none; }
+#chat .ch-in { display: flex; gap: 6px; align-items: center; padding: 6px 8px 8px; background: #e8ddd2; flex: none; }
+#chat .ch-box { flex: 1; background: #fff; border-radius: 18px; padding: 7px 12px; color: #8696a0; font-size: 13px; }
+#chat .ch-mic { width: 36px; height: 36px; border-radius: 50%; background: #1f6f5c; display: grid; place-items: center; font-size: 16px; }
+#chatNote { top: 10px; left: 50%; transform: translate(-50%, -140%); display: flex; gap: 9px; align-items: center; background: rgba(28, 31, 33, .94); color: #fff;
+  border-radius: 14px; padding: 8px 14px 8px 12px; min-width: min(360px, 70vw); max-width: 80vw; transition: transform .3s; box-shadow: 0 8px 22px rgba(0, 0, 0, .45); }
+#chatNote.show { transform: translate(-50%, 0); } #chatNote b { font-size: 13px; } #chatNote small { display: block; font-size: 12px; opacity: .85; }
+#chatNote div { display: flex; flex-direction: column; }
+#bPhone[data-n]:not([data-n=""])::after { content: attr(data-n); position: absolute; top: 2px; inset-inline-end: 2px; background: #25d366; color: #fff; font: 900 11px sans-serif;
+  min-width: 18px; height: 18px; border-radius: 9px; display: grid; place-items: center; }
+.touch #chat { top: 6vh; height: 86vh; width: min(320px, 42vw); }
+body.chatting #tasks { opacity: 0; transition: opacity .2s; }
+/* (the phone sits on the left: what you are doing moves over to the right of it) */
+body.chatting #doing { left: auto; transform: none; inset-inline-start: 14px; } html.touch body.chatting #doing, body.touch.chatting #doing { top: 96px; width: min(260px, 34vw); }
 /* short screens (a phone on its side): the menus have to fit in ~340px */
 @media (max-height: 460px) {
   .logo { font-size: clamp(34px, 9vh, 54px) !important; margin: 0 !important; }

@@ -61,6 +61,7 @@ export class Actor {
   // target: {x, z, eyeNow, hidden}
   canSee(t, range = 10, cosFov = 0.5) {
     if (t.hidden) return false;
+    if (((t.char ? t.char.pos.y : t.y || 0) > 1.2) !== (this.char.pos.y > 1.2)) return false;      // up on the roof (or the stairs) and down in the house
     const dx = t.x - this.x, dz = t.z - this.z, d = Math.hypot(dx, dz);
     const w = this.game.world;
     let r = range;
@@ -486,7 +487,7 @@ export class Dad extends Actor {
     if (this.phase === 'idle') { this.phase = 'going'; this.goTo(s.x, s.z + 0.3, { speed: 1.6, onArrive: () => { this.phase = 'doing'; this.face(15, 5.5); this.setPose('m_idle_waiting_01'); } }); }
     this.honkT -= dt;
     if (this.honkT <= 0) {
-      this.honkT = rnd(9, 13); sfx.horn({ x: 19.3, y: 1, z: 2.9 }); g.noise(19.3, 2.9, 3, 'horn', 'dad');
+      this.honkT = rnd(9, 13); sfx.horn({ x: 19.3, y: 1, z: 3.35 }); g.noise(19.3, 3.35, 3, 'horn', 'dad');
       // not a shout with every horn; and the shouting gets more desperate as the bell gets nearer
       const u = g.segT / (g.seg.time || 150), cat = u < 0.35 ? 'dad.sun.early' : u < 0.75 ? 'dad.sun.mid' : 'dad.sun.late';
       if (Math.random() < 0.65) g.later(1.3, () => this.say(voiced(cat) && Math.random() < 0.8 ? cat : 'dad.sun', { loud: true }));
@@ -618,6 +619,13 @@ export class Dad extends Actor {
 
   chase(dt) {
     const g = this.game, p = g.player;
+    // you ran up on to the roof: he stands at the foot of the stairs and shouts up
+    if (p.char.pos.y > 1.2) {
+      if (!this.roofCall) { this.roofCall = true; this.goTo(21.4, 0.55, { speed: 2.3, onArrive: () => { this.face(18, 0.5); this.say('dad.roof.down', { loud: true }); this.setPose('m_gestic_talk_angry_01_xyz', { fade: 0.2 }); } }); }
+      if (this.stateT > 26) { this.roofCall = false; this.pose = null; this.say('dad.slipper.miss', { index: 4 }); g.addAnger(4, 'escaped'); this.setState('routine'); this.phase = 'idle'; this.grace = g.now + 4; g.stats.escapes++; g.toast('هربت عالسطح… هالمرة', 'good'); }
+      return;
+    }
+    if (this.roofCall) { this.roofCall = false; this.pose = null; }
     this.repath -= dt;
     const d = this.dist(p);
     if (this.seen || (!p.hidden && g.now - this.lastSeenT < 2.5)) {

@@ -57,7 +57,7 @@ export const DAYS = [
   { id: 'sat', name: 'السبت', title: 'تعزيل البيت', intro: 'dad.intro.sat',
     blurb: 'عطلة. أبوك قاعد بالبيت ومعه الجريدة، يعني عينه عليك طول النهار. خلّص شغل البيت… وإذا لقيت فرصة، العب شوي.',
     segs: [{
-      tod: 'day', time: 300, clock: [10 * 60, 13 * 60], end: 'tasks', lightsOn: ['boys', 'sis', 'bath', 'hall'], visitor: [50, 85], vendors: { veg: [20, 45] },
+      tod: 'day', time: 300, clock: [10 * 60, 13 * 60], end: 'tasks', lightsOn: ['boys', 'sis', 'bath', 'hall'], visitor: [50, 85], vendors: { veg: [20, 45] }, roof: [150, 210],
       dad: { mode: 'patrol', pace: 1.2, cmds: ['tea', 'water'], cmdEvery: [48, 66],
         plan: [tv(26, 38, { paper: true }), look('kitchen'), look('hallE', 2, 3), look('boys', 4, 6, { line: 'dad.sat' }), tv(22, 32, { paper: true }), look('sis', 3, 5), look('parents', 5, 8), look('yard', 5, 8)] },
       sibs: { chaos: [55, 80] },
@@ -107,7 +107,7 @@ export const DAYS = [
   { id: 'tue', name: 'الثلاثاء', title: 'نشرة الأخبار', intro: 'dad.intro.tue',
     blurb: 'أبوك قاعد قدام الأخبار وبده هدوء… وبنفس الوقت بده شاي ومي ونظارات وريموت. لا تمرق قدام التلفزيون واقف: وطّي راسك (تسلل) وامرق.',
     segs: [{
-      tod: 'night', time: 270, clock: [20 * 60, 22 * 60 + 30], end: 'time', lightsOn: ['living', 'kitchen', 'hall'],
+      tod: 'night', time: 270, clock: [20 * 60, 22 * 60 + 30], end: 'time', lightsOn: ['living', 'kitchen', 'hall'], roof: [55, 110],
       dad: { mode: 'tv', quiet: true, cmds: ['tea', 'water', 'remote', 'glasses', 'charger', 'paper'], cmdEvery: [20, 30], maxCmds: 2,
         plan: [tv(60, 85), look('kitchen', 3, 5), tv(50, 70), look('hallM', 3, 4)] },
       sibs: { chaos: [50, 75] },

@@ -256,6 +256,10 @@ export const sfx = {
       stop(fade = 1) { live = false; clearInterval(timer); const now = ctx.currentTime; g.gain.cancelScheduledValues(now); g.gain.setTargetAtTime(0.0001, now, fade / 3); },
     };
   },
+  // a message in the family group: the phone's little two-note ping (softer when the chat is already open)
+  ping(open) { if (!ctx) return; tone(1320, { type: 'sine', d: 0.09, peak: open ? 0.05 : 0.12 }); tone(1760, { type: 'sine', d: 0.14, peak: open ? 0.04 : 0.1, delay: 0.09 }); },
+  // knuckles on a plastic water tank: a hollow boom above the water, a dull thud below it
+  knockTank(pos, full) { if (!ctx) return; if (full) { burst({ freq: 140, type: 'lowpass', d: 0.09, peak: 0.5, pos, ref: 4 }); } else { tone(96, { type: 'sine', d: 0.45, peak: 0.35, pos, ref: 4 }); tone(188, { type: 'sine', d: 0.3, peak: 0.12, pos, ref: 4 }); burst({ freq: 420, q: 1.2, d: 0.05, peak: 0.25, pos, ref: 4 }); } },
   // a gas cylinder knocked against something: a hollow steel bong
   clang(pos, full = true) { if (!ctx) return; for (const [fr, pk, d] of [[full ? 210 : 330, 0.5, 0.9], [full ? 530 : 760, 0.25, 0.6], [1240, 0.12, 0.35]]) tone(fr, { type: 'sine', d, peak: pk, pos, ref: 6 }); burst({ freq: 2600, q: 2, d: 0.04, peak: 0.3, pos, ref: 6 }); },
   gate(pos, shut) { if (!ctx) return; tone(shut ? 420 : 300, { type: 'sawtooth', a: 0.05, d: 0.5, peak: 0.03, slide: shut ? -140 : 180, pos, ref: 4 }); burst({ freq: 1500, q: 8, a: 0.05, d: 0.45, peak: 0.06, slide: 700, pos, ref: 4 }); if (shut) burst({ freq: 700, q: 2, d: 0.08, peak: 0.35, pos, delay: 0.5, ref: 4 }); },
