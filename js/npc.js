@@ -313,6 +313,7 @@ export class Dad extends Actor {
     if (g.interaction && g.interaction.running) return;
     const seg = g.seg, mins = seg.clock[0] + (seg.clock[1] - seg.clock[0]) * Math.min(1, g.segT / seg.time);
     const now = [];
+    if (p.carrying && p.carrying.item === 'veg') now.push('dad.veg');
     if (g.wearing === 'pyjama' && mins > 10 * 60 + 30) now.push('dad.tease.pyjama');
     if (g.now - this.lastScold > 18 && g.now - this.lastScold < 75) now.push('dad.tease.after');
     if (seg.tod === 'morning') now.push('dad.tease.morning');

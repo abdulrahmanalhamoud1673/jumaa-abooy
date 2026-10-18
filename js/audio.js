@@ -41,6 +41,17 @@ function panner(pos, ref = 2.2, rolloff = 1.1) {
   return p;
 }
 
+// A cheap horn loudspeaker on a truck roof: no bass, a honk in the middle, a little crackle, and the street throwing it back.
+function megaphone() {
+  const hp = ctx.createBiquadFilter(), pk = ctx.createBiquadFilter(), lp = ctx.createBiquadFilter(), sh = ctx.createWaveShaper(), out = ctx.createGain(), dl = ctx.createDelay(1), fb = ctx.createGain();
+  hp.type = 'highpass'; hp.frequency.value = 520; hp.Q.value = 0.8; pk.type = 'peaking'; pk.frequency.value = 1900; pk.gain.value = 7; pk.Q.value = 1.1;
+  lp.type = 'lowpass'; lp.frequency.value = 3600; lp.Q.value = 0.9;
+  const n = 1024, curve = new Float32Array(n); for (let i = 0; i < n; i++) { const x = i / (n - 1) * 2 - 1; curve[i] = Math.tanh(x * 3.2) / Math.tanh(3.2); }
+  sh.curve = curve; out.gain.value = 0.75; dl.delayTime.value = 0.23; fb.gain.value = 0.24;
+  hp.connect(pk); pk.connect(sh); sh.connect(lp); lp.connect(out); lp.connect(dl); dl.connect(fb); fb.connect(out); fb.connect(dl);
+  return { input: hp, output: out };
+}
+
 async function load(id) {
   if (buffers.has(id)) return buffers.get(id);
   const p = fetch(`${BASE}assets/voice/${id}.mp3`).then((r) => { if (!r.ok) throw new Error('missing'); return r.arrayBuffer(); })
@@ -77,7 +88,7 @@ export function pickLine(cat) {
 }
 
 // Play a recorded line at a position (or flat when pos is null). Returns a handle with stop().
-export function playVoice(id, pos, { gain = 1, rate = 1, ref = 2.6 } = {}) {
+export function playVoice(id, pos, { gain = 1, rate = 1, ref = 2.6, horn = false } = {}) {
   const handle = { stop() { this.src && this.src.stop(); }, src: null, mouth: () => 0 };
   if (!ctx || !A.voice[id]) return handle;
   load(id).then((buf) => {
@@ -87,7 +98,8 @@ export function playVoice(id, pos, { gain = 1, rate = 1, ref = 2.6 } = {}) {
     const src = ctx.createBufferSource(); src.buffer = buf; src.playbackRate.value = rate;
     const g = ctx.createGain(), an = ctx.createAnalyser(); an.fftSize = 256;
     g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(gain, t + 0.012); g.gain.setValueAtTime(gain, t + Math.max(0.02, len - 0.045)); g.gain.linearRampToValueAtTime(0.0001, t + len);
-    src.connect(g); g.connect(an);
+    src.connect(g);
+    if (horn) { const m = megaphone(); g.connect(m.input); m.output.connect(an); } else g.connect(an);      // (the vegetable man's loudspeaker)
     if (pos) { const p = panner(pos, ref, 0.9); an.connect(p); p.connect(voiceBus); handle.panner = p; } else an.connect(voiceBus);
     src.start(t, s, len * rate + 0.02); handle.src = src;
     // how loud the voice is right now, 0..1: the speaker's jaw follows it
@@ -222,6 +234,30 @@ export const sfx = {
   carDoor(pos) { if (!ctx) return; burst({ freq: 130, type: 'lowpass', d: 0.13, peak: 0.6, pos, ref: 4 }); burst({ freq: 2200, q: 3, d: 0.02, peak: 0.12, pos, delay: 0.01, ref: 4 }); },
   lock(pos) { if (!ctx) return; for (const dl of [0, 0.4]) tone(2350, { type: 'square', d: 0.07, peak: 0.07, pos, delay: dl, ref: 6 }); },
   flop(pos) { if (!ctx) return; burst({ freq: 150, type: 'lowpass', d: 0.13, peak: 0.6, pos, ref: 5 }); burst({ freq: 1100, q: 1.5, d: 0.05, peak: 0.16, pos, delay: 0.02, ref: 5 }); },
+  // «Für Elise», the way every gas truck in Jordan plays it: a thin electronic tune out of a horn speaker, over and over.
+  tune(pos) {
+    if (!ctx) return { set() {}, stop() {} };
+    const p = panner(pos, 7, 0.9), g = ctx.createGain(), m = megaphone(), f = ctx.createBiquadFilter();
+    f.type = 'lowpass'; f.frequency.value = 2600; g.gain.value = 0.0001; g.gain.setTargetAtTime(0.32, ctx.currentTime, 0.4);
+    f.connect(m.input); m.output.connect(g); g.connect(p); p.connect(sfxBus);
+    const N = [[76, 1], [75, 1], [76, 1], [75, 1], [76, 1], [71, 1], [74, 1], [72, 1], [69, 3], [60, 1], [64, 1], [69, 1], [71, 3], [64, 1], [68, 1], [71, 1], [72, 3], [64, 1],
+      [76, 1], [75, 1], [76, 1], [75, 1], [76, 1], [71, 1], [74, 1], [72, 1], [69, 3], [60, 1], [64, 1], [69, 1], [71, 3], [64, 1], [72, 1], [71, 1], [69, 6], [0, 5]];
+    const S16 = 0.155; let i = 0, at = ctx.currentTime + 0.1, live = true;
+    const note = (midi, t, len) => {
+      const fr = 440 * 2 ** ((midi - 69) / 12), o = ctx.createOscillator(), o2 = ctx.createOscillator(), e = ctx.createGain();
+      o.type = 'square'; o.frequency.value = fr; o2.type = 'triangle'; o2.frequency.value = fr * 2; o2.detune.value = 6;
+      e.gain.setValueAtTime(0.0001, t); e.gain.linearRampToValueAtTime(0.16, t + 0.006); e.gain.exponentialRampToValueAtTime(0.07, t + 0.09); e.gain.setValueAtTime(0.07, t + len - 0.03); e.gain.linearRampToValueAtTime(0.0001, t + len);
+      o.connect(e); o2.connect(e); e.connect(f); o.start(t); o2.start(t); o.stop(t + len + 0.02); o2.stop(t + len + 0.02);
+    };
+    const pump = () => { if (!live) return; while (at < ctx.currentTime + 0.4) { const [n, d] = N[i]; if (n) note(n, at, d * S16 * 0.92); at += d * S16; i = (i + 1) % N.length; } };
+    const timer = setInterval(pump, 90); pump();
+    return {
+      set(a, loud = 1) { const now = ctx.currentTime; p.positionX.setTargetAtTime(a.x, now, 0.05); p.positionZ.setTargetAtTime(a.z, now, 0.05); g.gain.setTargetAtTime(0.32 * loud, now, 0.3); },
+      stop(fade = 1) { live = false; clearInterval(timer); const now = ctx.currentTime; g.gain.cancelScheduledValues(now); g.gain.setTargetAtTime(0.0001, now, fade / 3); },
+    };
+  },
+  // a gas cylinder knocked against something: a hollow steel bong
+  clang(pos, full = true) { if (!ctx) return; for (const [fr, pk, d] of [[full ? 210 : 330, 0.5, 0.9], [full ? 530 : 760, 0.25, 0.6], [1240, 0.12, 0.35]]) tone(fr, { type: 'sine', d, peak: pk, pos, ref: 6 }); burst({ freq: 2600, q: 2, d: 0.04, peak: 0.3, pos, ref: 6 }); },
   gate(pos, shut) { if (!ctx) return; tone(shut ? 420 : 300, { type: 'sawtooth', a: 0.05, d: 0.5, peak: 0.03, slide: shut ? -140 : 180, pos, ref: 4 }); burst({ freq: 1500, q: 8, a: 0.05, d: 0.45, peak: 0.06, slide: 700, pos, ref: 4 }); if (shut) burst({ freq: 700, q: 2, d: 0.08, peak: 0.35, pos, delay: 0.5, ref: 4 }); },
 };
 

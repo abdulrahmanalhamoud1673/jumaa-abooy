@@ -920,10 +920,7 @@ export class World {
     }
     this.rbox(M.steel, 0.5, 0.08, 0.62, 0.012, 15.66, 1.72, 8.1); this.rbox(M.steel, 0.3, 0.5, 0.3, 0.012, 15.76, 2.0, 8.1);
     this.spots.kettle = { id: 'kettle', x: 15.02, z: 8.38, face: Math.PI / 2, room: 'kitchen', label: 'الغاز' };
-    // gas cylinder with its collar and valve
-    this.lathe(M.plasticBlue, [[0, 0.02], [0.14, 0.02], [0.16, 0.06], [0.16, 0.42], [0.12, 0.52], [0.05, 0.56], [0, 0.56]], 15.65, 0, 7.35, 18); this.cyl(M.dark, 0.13, 0.13, 0.03, 15.65, 0.015, 7.35, 16);
-    { const t = new THREE.TorusGeometry(0.09, 0.008, 5, 16, Math.PI * 1.5); t.rotateX(Math.PI / 2); t.translate(15.65, 0.63, 7.35); this.push(M.plasticBlue, t); } this.cyl(M.gold, 0.02, 0.025, 0.07, 15.65, 0.6, 7.35, 8);
-    this.tube(flatMat(0xe98a3a, { rough: 0.6 }), [[15.65, 0.63, 7.35], [15.7, 0.7, 7.5], [15.7, 0.6, 7.7], [15.66, 0.75, 7.82]], 0.008);
+    // (the gas cylinder beside the cooker is live: vendors.js, it gets swapped)
     this.solid(15.45, 7.15, 15.9, 7.6, 0.7);
     // on the worktops: utensil pot, knife block, spice jars, washing-up liquid, bread bin, microwave
     this.lathe(M.porcelain, [[0, 0], [0.045, 0], [0.05, 0.13], [0.046, 0.13], [0.04, 0.008], [0, 0.008]], 15.76, 0.9, 9.05, 12);

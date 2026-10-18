@@ -460,6 +460,7 @@ export class Stations {
     }
     if (s.pick) {
       if (s.pick === 'water') return { name: 'fillGlass' };
+      if (s.pick === 'gasEmpty') return { name: 'unhookGas' };
       if (s.pick === 'tea') return { name: 'makeTea' };
       if (s.pick === 'coffee') return { name: 'makeCoffee' };
       if (s.pick === 'laundry' && own) return { name: 'gatherLaundry' };
@@ -477,6 +478,8 @@ export class Stations {
     }
     if (s.drop) {
       if (id === 'washer') return { name: 'loadWasher' };
+      if (s.drop === 'gasFull') return { name: 'hookGas' };
+      if (s.drop === 'veg' && id === 'fridge') return { name: 'fridgePut' };
       if (id === 'clothesline') return { name: 'hang' };
       if (id === 'yardbin') return { name: 'dumpTrash' };
       if (own) return { name: 'putAway' };

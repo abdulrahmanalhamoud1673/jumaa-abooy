@@ -470,7 +470,7 @@ export class Delivery {
     const sc = this.sc, c = this.rider && this.rider.char, pos = sc && { x: this.x, y: 0.6, z: this.z };
     switch (this.state) {
       case 'coming':
-        if (g.street.busy) this.eta += dt;                 // a car across the gate: he waits round the corner
+        if (g.street.busy || (g.vendors && g.vendors.busy)) this.eta += dt;                 // a car or a truck across the gate: he waits round the corner
         if (this.t > this.eta && !g.over) this.arrive();
         break;
       case 'ride': {
@@ -551,3 +551,6 @@ export class Delivery {
     this.state = 'back'; this.t = 0;
   }
 }
+
+// shared with the trucks in the lane (vendors.js)
+export { loft, spline, grid, rod, tube, mesh, paint };

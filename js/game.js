@@ -16,11 +16,12 @@ import { Tv } from './tv.js';
 import { Outfit } from './outfit.js';
 import { Cctv } from './cctv.js';
 import { Delivery } from './delivery.js';
+import { Vendors } from './vendors.js';
 
 const rnd = (a, b) => a + Math.random() * (b - a);
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-const NAMES = { rider: 'كابتن طلبات', dad: 'أبوك', mom: 'أمك', big: 'سيف', kid: 'حمودة', sis: 'سلمى', uncle: 'عمك أبو فراس', aunt: 'مرت عمك' };
+const NAMES = { gasman: 'أبو علي (الغاز)', vegman: 'أبو أحمد (الخضرة)', rider: 'كابتن طلبات', dad: 'أبوك', mom: 'أمك', big: 'سيف', kid: 'حمودة', sis: 'سلمى', uncle: 'عمك أبو فراس', aunt: 'مرت عمك' };
 const SELF = {
   big: { bed: 'bed_big', bedSide: [12.05, 1.6], desk: 'desk_boys', wardrobe: 'wardrobe_boys', pile: [12.5, 3.5], room: 'boys' },
   kid: { bed: 'bed_kid', bedSide: [14.45, 1.6], desk: 'desk_boys', wardrobe: 'wardrobe_boys', pile: [13.9, 3.4], room: 'boys' },
@@ -55,6 +56,7 @@ export class Game {
     this.tv = new Tv(this);
     this.cctv = new Cctv(this);
     this.delivery = new Delivery(this);
+    this.vendors = new Vendors(this);
     for (const k of ['big', 'kid', 'sis']) if (this.chars[k]) this.chars[k].outfit = new Outfit(this.chars[k]);
     // doors are heard only from nearby: the whole family walks through them all day
     this.world.onDoor = (d, opening) => { const p = this.player; if (!p || Math.hypot(d.x - p.x, d.z - p.z) > 8) return; const pos = { x: d.x, y: 1, z: d.z }; if (opening) sfx.door(pos); else sfx.doorShut(pos); };
@@ -97,7 +99,7 @@ export class Game {
     for (const d of w.doors) d.locked = false;
     // clear the floor
     this.clearProps();
-    this.messes = []; this.pickups = []; this.projectiles = []; this.mishaps.reset(); this.street.reset(seg); this.delivery.reset();
+    this.messes = []; this.pickups = []; this.projectiles = []; this.mishaps.reset(); this.street.reset(seg); this.delivery.reset(); this.vendors.reset(seg);
     this.vases = w.fragile.map((f) => { const m = vaseMesh(f.big); m.position.set(f.x, f.y, f.z); this.props.add(m); return { ...f, mesh: m, broken: false }; });
     if (p.carrying) { this.scene.remove(p.carrying.mesh); p.carrying = null; }
     p.state = 'free'; p.act = null; p.pose = null; p.phoneOut = false; p.sneaking = false; p.hide = null; p.camOverride = null; p.char.lying = 0; p.char.visible = true; p.char.pos.y = 0; p.char.overlay(null);
@@ -167,7 +169,7 @@ export class Game {
     if (id === '@pile') return { x: me.pile[0], z: me.pile[1], face: 0 };
     return w.spots[id] || w.devices[id] || null;
   }
-  actor(key) { return key === 'dad' ? this.dad : key === 'mom' ? this.mom : this.guests[key] || this.sibAll[key]; }
+  actor(key) { return key === 'dad' ? this.dad : key === 'mom' ? this.mom : key === 'gasman' || key === 'vegman' ? (this.vendors.suited ? this.vendors.man : null) : this.guests[key] || this.sibAll[key]; }
   sibRole(role) { return this.sibs.find((s) => s.role === role); }
   anyoneIn(room) {
     const w = this.world, at = (a) => w.roomAt(a.x, a.z) === room;
@@ -209,7 +211,7 @@ export class Game {
   }
 
   // Speak a line: recorded voice when there is one, a grunt otherwise, always with a subtitle if you're near enough.
-  say(actor, cat, { index, loud, whisper, far } = {}) {
+  say(actor, cat, { index, loud, whisper, far, horn } = {}) {
     if (!A.lines.lines[cat]) { const m = /^(.*)\.(\d+)$/.exec(cat); if (m) { cat = m[1]; index = +m[2]; } }
     const entry = A.lines.lines[cat];
     if (!entry) return 0;
@@ -221,7 +223,7 @@ export class Game {
     if (actor.voice) actor.voice.stop();
     const pos = { x: actor.x, y: 1.5, z: actor.z };
     const d = Math.hypot(actor.x - this.player.x, actor.z - this.player.z);
-    if (line.has) actor.voice = playVoice(line.id, far || d < 1.2 ? null : pos, { gain: whisper ? 0.7 : loud ? 1.3 : 1, ref: loud ? 5 : 2.8 });
+    if (line.has) actor.voice = playVoice(line.id, horn ? { x: actor.hornX ?? actor.x, y: 2.2, z: actor.hornZ ?? actor.z } : far || d < 1.2 ? null : pos, { gain: whisper ? 0.7 : horn ? 1.6 : loud ? 1.3 : 1, ref: horn ? 9 : loud ? 5 : 2.8, horn });
     else if (line.id === 'dad.mutter.8') sfx.cough(pos);       // his famous throat-clearing has no recording
     else if (actor.key === 'dad') sfx.grunt(pos, 1); else sfx.grunt(pos, actor.key === 'kid' ? 2.6 : actor.key === 'big' ? 1.4 : 2.1);
     actor.talkUntil = this.now + line.dur;
@@ -280,7 +282,7 @@ export class Game {
   carry(item, extra = {}) {
     const p = this.player;
     const mesh = makeItem(item); this.scene.add(mesh);
-    p.carrying = { item, mesh, tray: TRAY.has(item), heavy: item === 'mansaf', ...extra };
+    p.carrying = { item, mesh, tray: TRAY.has(item), heavy: item === 'mansaf' || item === 'gasFull', slow: item === 'gasFull' ? 0.6 : item === 'gasEmpty' ? 0.88 : 0, ...extra };
     if (p.phoneOut) p.phone(false);
     this.stations.putDown(p, true);         // two hands on the tray: the bucket stays where you were
     sfx.pick();
@@ -379,7 +381,7 @@ export class Game {
   complete(t) {
     t.done = true; t.doneAt = this.now;
     if (t.kind === 'secret') { this.stats.secrets++; sfx.secret(); this.toast('هدف سرّي: تم 😎', 'good'); } else if (t.kind === 'cmd') this.commandDone(t);
-    else if (t.kind === 'mom') { this.mom.say('mom.thanks'); this.tokens = Math.min(2, this.tokens + 1); this.addAnger(-4); sfx.done(); this.toast('أمك راضية عليك: بتغطّي عليك مرة 💚', 'good'); } else if (t.kind === 'punish') { sfx.done(); this.addAnger(-5); this.toast('خلصت العقاب', 'good'); } else { this.stats.chores++; sfx.done(); if (this.dad.seen && this.dad.calm && Math.random() < 0.5 && !this.flags.guests) this.later(0.6, () => this.dad.say('dad.praise')); }
+    else if (t.kind === 'mom') { if (t.id !== 'veg') this.mom.say('mom.thanks'); /* (the vegetables get their own thanks) */ this.tokens = Math.min(2, this.tokens + 1); this.addAnger(-4); sfx.done(); this.toast('أمك راضية عليك: بتغطّي عليك مرة 💚', 'good'); } else if (t.kind === 'punish') { sfx.done(); this.addAnger(-5); this.toast('خلصت العقاب', 'good'); } else { this.stats.chores++; sfx.done(); if (this.dad.seen && this.dad.calm && Math.random() < 0.5 && !this.flags.guests) this.later(0.6, () => this.dad.say('dad.praise')); }
     if (t.id === 'door' && this.flags.guests) this.guestsArrive();
   }
   canCommand() {
@@ -650,26 +652,30 @@ export class Game {
       const s = this.step(t); if (!s || this.locked(t)) continue;
       const key = t.id + ':' + t.i;
       const fx = s.use || s.pick || s.drop ? this.stations.fxFor(t, s) : null, fxSecs = fx && FX_SECS[fx.name] || 0;
-      if (s.use) { const sp = this.spot(s.use); if (near(sp, 1.3)) add(1, dist(sp), { key, fx, label: s.label || t.title, secs: Math.max(s.secs, fxSecs), act: s.act, noise: s.noise || t.noise, face: sp, run: () => { this.afterUse(t, s); this.advance(t); } }); } else if (s.pick && !p.carrying) {
+      if (s.use) { const sp = this.spot(s.use); if (near(sp, 1.3) && (t.id !== 'veg' || this.vendors.waiting)) add(1, dist(sp), { key, fx, label: s.label || t.title, secs: Math.max(s.secs, fxSecs), act: s.act, noise: s.noise || t.noise, face: sp, run: () => { this.afterUse(t, s); if (t.id === 'veg') this.vendors.vegOrder(); this.advance(t); } }); } else if (s.pick && !p.carrying) {
         const sp = this.spot(s.at);
         // (an order is only there to take once the captain is at the gate, or has hung it on it)
-        if (near(sp, 1.3) && (s.pick !== 'talabat' || this.delivery.ready || this.delivery.hung)) add(1, dist(sp), { key, fx, label: s.pick === 'talabat' && this.delivery.hung ? 'خذ الطلب عن البوابة' : s.label || `خذ ${ITEMS[s.pick]}`, secs: Math.max(s.secs || 1, fxSecs) * (s.high && kid ? 1.6 : 1), act: s.act, face: sp, run: () => {
+        const truckOk = s.pick === 'gasFull' ? this.vendors.gasReady : s.pick === 'veg' ? this.vendors.vegReady : true;      // (the gas man has put it down at the gate / the bag is ready)
+        if (near(sp, 1.3) && truckOk && (s.pick !== 'talabat' || this.delivery.ready || this.delivery.hung)) add(1, dist(sp), { key, fx, label: s.pick === 'talabat' && this.delivery.hung ? 'خذ الطلب عن البوابة' : s.label || `خذ ${ITEMS[s.pick]}`, secs: Math.max(s.secs || 1, fxSecs) * (s.high && kid ? 1.6 : 1), act: s.act, face: sp, run: () => {
           if (s.at === 'fridge') this.setDevice('fridge', true, 'player');
           if (s.prop) { this.props.remove(s.prop); s.prop = null; }
           if (s.pick === 'talabat') { if (this.delivery.hung) this.delivery.takeHung(); else this.delivery.delivered(); }
+          if (s.pick === 'gasFull' || s.pick === 'veg') this.vendors.handed();
           if (s.pick === 'kunafa') this.later(0.4, () => this.mom.say('mom.kunafa', { loud: true }));
           this.carry(s.pick); this.advance(t);
         } });
       } else if (s.drop && p.carrying && p.carrying.item === s.drop) {
         const sp = this.spot(s.at);
-        if (near(sp, 1.35)) add(0, dist(sp), { key, fx, label: `حط ${ITEMS[s.drop]}`, secs: Math.max(s.secs || 1, fxSecs), face: sp, run: () => {
+        if (near(sp, 1.35)) add(0, dist(sp), { key, fx, label: s.label || `حط ${ITEMS[s.drop]}`, secs: Math.max(s.secs || 1, fxSecs), face: sp, run: () => {
           this.uncarry(); if (['kunafa', 'cups', 'mansaf', 'laban', 'remote'].includes(s.drop)) this.placeProp(s.drop, sp, s.at);
+          if (s.drop === 'gasFull') this.later(1.2, () => { if (!this.dad.away) this.dad.say('dad.gas.done', { loud: true, far: true }); });
+          if (s.drop === 'veg') this.later(0.6, () => this.mom.say('mom.veg.thanks', { loud: true, far: true }));
           this.advance(t);
         } });
       } else if (s.give !== undefined && s.to) {
         const a = this.actor(s.to);
         if (a && a.char.visible && near(a, 1.9) && (s.give === null ? !p.carrying : p.carrying && p.carrying.item === s.give)) {
-          add(0, dist(a), { key, label: s.label || `أعطي ${NAMES[s.to]}`, secs: 0.7, face: a, give: a, run: () => { if (s.give) this.handOver(s.give, a); if (!s.keep) { const c = this.uncarry(); if (c && c.tray && s.give) this.setDown(c, a); } this.advance(t); if (s.to !== 'dad' && this.guests[s.to]) this.later(0.3, () => this.guests[s.to].say(s.to === 'uncle' ? 'uncle.talk' : 'aunt.talk', { index: s.to === 'uncle' ? 3 : 0 })); } });
+          add(0, dist(a), { key, label: s.label || `أعطي ${NAMES[s.to]}`, secs: 0.7, face: a, give: a, run: () => { if (s.give) this.handOver(s.give, a); if (s.to === 'gasman') this.vendors.tookEmpty(); if (!s.keep) { const c = this.uncarry(); if (c && c.tray && s.give) this.setDown(c, a); } this.advance(t); if (s.to !== 'dad' && this.guests[s.to]) this.later(0.3, () => this.guests[s.to].say(s.to === 'uncle' ? 'uncle.talk' : 'aunt.talk', { index: s.to === 'uncle' ? 3 : 0 })); } });
         }
       } else if (s.stay) {
         const sp = this.spot(s.stay);
@@ -812,6 +818,7 @@ export class Game {
     this.mishaps.update(dt);
     this.street.update(dt);
     this.delivery.update(dt);
+    this.vendors.update(dt);
     if (this.stay && this.stay.task) { const st = this.stay; this.stations.stayTick(st.step, st.task.prog / (st.step.secs || 1), dt); }
     this.stations.update(dt, this.app.renderer.domElement.height, this.camera.fov);
 

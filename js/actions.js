@@ -581,6 +581,79 @@ export const ACT = {
     },
     end(S, x, done) { const it = x.d.it; if (!it) return; it.position.copy(x.d.home); if (done) it.visible = false; },
   },
+  // ---------- the gas cylinder: down on your knees by the cooker, unscrew the regulator, lift it off, slide the cylinder out ----------
+  unhookGas: {
+    secs: 3.2,
+    begin(S, x) { const Vd = S.g.vendors; x.d.home = Vd.cyl.position.clone(); squat(x); S.focus(x.p, V(15.65, 0.55, 7.35)); x.p.workLean = 0.3; },
+    tick(S, x, u, dt) {
+      const Vd = S.g.vendors, cy = Vd.cyl, top = cy.position.clone().setY(0.585), rest = V(15.5, 0.42, 7.66);
+      if (u < 0.5) {                                   // the regulator: a turn and a turn and a turn
+        const tw = u / 0.5; Vd.setHose(); Vd.reg.rotation.y = 0.6 + tw * 7;
+        if (every(x, 'k', dt, 0.4)) sfx.click();
+        S.hands(x, V(top.x - 0.02, top.y + 0.06, top.z), V(top.x - 0.05, top.y - 0.02, top.z - 0.09), 0.8, 0.9); S.look(x, top);
+      } else if (u < 0.65) {                           // off it comes, and down beside the cooker
+        const k = sm(seg(u, 0.5, 0.65)), p = arc(top, rest, k, 0.12); Vd.setHose(p);
+        if (once(x, 'h')) sfx.lock(top);
+        S.hands(x, V(p.x - 0.02, p.y + 0.05, p.z), V(top.x - 0.05, top.y - 0.02, top.z - 0.09), 0.85, 0.9);
+      } else {                                         // both hands on the collar, and it comes out towards you
+        const k = sm(seg(u, 0.65, 1)); cy.position.copy(x.d.home).lerp(V(15.33, 0, 7.36), k); cy.rotation.z = Math.sin(k * Math.PI) * 0.08;
+        const ct = cy.position.clone().setY(0.6);
+        S.hands(x, V(ct.x, ct.y + 0.01, ct.z - 0.05), V(ct.x, ct.y + 0.01, ct.z + 0.05), 0.95, 0.95); S.look(x, ct);
+        if (once(x, 's')) sfx.clang(ct, false);
+      }
+    },
+    end(S, x, done) {
+      const Vd = S.g.vendors; x.c.pos.y = 0; x.p.pose = null;
+      if (done) { Vd.cyl.visible = false; Vd.hooked = false; Vd.cyl.position.copy(x.d.home); Vd.cyl.rotation.z = 0; Vd.setHose(V(15.5, 0.42, 7.66)); }
+      else { Vd.cyl.position.copy(x.d.home); Vd.cyl.rotation.z = 0; Vd.setHose(); Vd.reg.rotation.y = 0.6; }
+    },
+  },
+  // ---------- and the full one in: into its corner, the regulator screwed on, the valve opened, a burner lit to try it ----------
+  hookGas: {
+    secs: 4.2,
+    begin(S, x) { const it = x.p.carrying; if (it) { it.custom = true; x.d.m = it.mesh; x.d.from = it.mesh.position.clone(); } squat(x); S.focus(x.p, V(15.65, 0.55, 7.35)); x.p.workLean = 0.3; },
+    tick(S, x, u, dt) {
+      const Vd = S.g.vendors, home = V(15.65, 0, 7.35), top = home.clone().setY(0.585), rest = V(15.5, 0.42, 7.66), m = x.d.m;
+      if (u < 0.3) {                                   // set down in its corner
+        const k = sm(u / 0.3); if (m) { m.position.copy(x.d.from).lerp(home, k); m.position.y = x.d.from.y * (1 - k); m.rotation.set(0, 0.6, 0); }
+        const ct = (m ? m.position : home).clone().setY(0.6 + (m ? m.position.y : 0));
+        S.hands(x, V(ct.x, ct.y, ct.z - 0.05), V(ct.x, ct.y, ct.z + 0.05), 0.95, 0.95); S.look(x, ct);
+        if (u > 0.27 && once(x, 'd')) sfx.clang(home);
+      } else if (u < 0.42) {                           // the regulator up off the floor
+        const k = sm(seg(u, 0.3, 0.42)), p = arc(rest, top, k, 0.12); Vd.setHose(p);
+        S.hands(x, V(p.x - 0.02, p.y + 0.05, p.z), V(top.x - 0.05, top.y - 0.02, top.z - 0.09), 0.85, 0.9);
+      } else if (u < 0.72) {                           // and screwed on tight
+        const tw = seg(u, 0.42, 0.72); Vd.setHose(); Vd.reg.rotation.y = 0.6 + 7 * (1 - tw);
+        if (every(x, 'k', dt, 0.4)) sfx.click();
+        S.hands(x, V(top.x - 0.02, top.y + 0.06, top.z), V(top.x - 0.05, top.y - 0.02, top.z - 0.09), 0.8, 0.9); S.look(x, top);
+      } else {                                         // up, a knob turned, the click of the lighter, a ring of blue flame
+        x.c.pos.y = 0; if (once(x, 'u')) { x.p.setPose('m_idle_neutral_01', { fade: 0.3 }); x.p.workLean = 0.2; }
+        S.hands(x, V(15.3, 0.83, 8.16), null, 0.6, 0.6); S.look(x, V(15.62, 0.96, 8.22));
+        if (u > 0.8 && once(x, 'f')) { sfx.click(); S.K.flame.visible = true; }
+        if (u > 0.97) S.K.flame.visible = false;
+      }
+    },
+    end(S, x, done) {
+      const Vd = S.g.vendors; S.K.flame.visible = false; x.c.pos.y = 0;
+      if (done) { Vd.cyl.visible = true; Vd.cyl.position.set(15.65, 0, 7.35); Vd.hooked = true; Vd.setHose(); Vd.reg.rotation.y = 0.6; }
+      else { Vd.setHose(V(15.5, 0.42, 7.66)); if (x.p.carrying) x.p.carrying.custom = false; }
+    },
+  },
+  // ---------- the vegetables: fridge door open, down to the drawer at the bottom, in they go ----------
+  fridgePut: {
+    secs: 2.6,
+    begin(S, x) { S.g.setDevice('fridge', true, 'player'); const it = x.p.carrying; if (it) { it.custom = true; x.d.m = it.mesh; } S.focus(x.p, S.F.front); },
+    tick(S, x, u) {
+      const c = x.c, f = fwd(c), m = x.d.m, door = S.wp(S.w.devices.fridge.door, V(0.62, 1.0, 0.02));
+      const drawer = V(c.pos.x + f.x * 0.84, 0.3, c.pos.z + f.z * 0.84), held = V(c.pos.x + f.x * 0.3, c.height * 0.55, c.pos.z + f.z * 0.3);      // (the drawer at the bottom, inside)
+      x.p.workLean = 0.75 * Math.sin(Math.min(1, u * 1.2) * Math.PI);
+      const hand = u < 0.6 ? arc(held, drawer, u / 0.6, 0.05) : drawer;
+      if (m) { m.position.copy(hand).setY(hand.y - 0.3); m.visible = u < 0.68; }
+      if (u > 0.62 && once(x, 'in')) sfx.flap();
+      S.hands(x, V(hand.x, hand.y + 0.03, hand.z), door, 0.9, 0.85); S.look(x, hand);
+    },
+    end(S, x, done) { S.g.setDevice('fridge', false, 'player'); if (!done && x.p.carrying) { x.p.carrying.custom = false; x.p.carrying.mesh.visible = true; } },
+  },
   // the high cupboard: door swung open, a reach up on to the shelf (off the step stool, if you are small), and out with it
   cupboard: {
     secs: 2.2,

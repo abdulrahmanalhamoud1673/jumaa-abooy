@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { flatMat } from './assets.js';
 import { talabatBag } from './delivery.js';
+import { gasCylinder, vegBag } from './vendors.js';
 
 export const mat = (color, o) => flatMat(color, o);
 const two = (m) => { const c = m.clone(); c.side = THREE.DoubleSide; return c; };
@@ -315,6 +316,7 @@ const BUILD = {
   laundry: () => basket(1, false), clothes: () => basket(1, false), wet: () => basket(1, true),
   trash: trashBag,
   talabat: talabatBag,
+  gasEmpty: () => gasCylinder(false, 0x2f7f6a), gasFull: () => gasCylinder(true, 0x4f9e74), veg: vegBag,
   tomato() { const g = group(lathe([[0, 0], [0.05, 0], [0.085, 0.045], [0.09, 0.046], [0.05, 0.006], [0, 0.006]], MAT.porcelain, 16)); for (const [x, z, y] of [[-0.03, 0, 0.05], [0.035, 0.015, 0.05], [0, -0.035, 0.05], [0.005, 0.01, 0.1]]) g.add(ball(0.038, mat(0xd3261a, { rough: 0.35 }), x, y, z, 0.9)); return g; },
   chocolate() {
     const bar = rbox(0.07, 0.014, 0.15, 0.004, mat(0x4a2410, { rough: 0.5 }), 0, 0.008, 0);

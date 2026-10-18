@@ -77,7 +77,7 @@ export class Street {
     const drive = (v) => { car.z += v * dt; car.group.position.z = car.z; car.roll(v * dt); car.v = v; };
     while (this.q && this.qi < this.q.length && this.t >= this.q[this.qi][0]) this.q[this.qi++][1]();
     switch (this.state) {
-      case 'none': if (g.delivery && g.delivery.busy) this.at += dt; else if (g.segT >= this.at && !g.over && !g.ended) this.arrive(); break;
+      case 'none': if ((g.delivery && g.delivery.busy) || (g.vendors && g.vendors.busy)) this.at += dt; else if (g.segT >= this.at && !g.over && !g.ended) this.arrive(); break;
       case 'arriving': {
         // brakes so as to stop on the mark, nose dipping as it does
         const left = S.park - car.z, v = Math.min(5.4, Math.sqrt(Math.max(0, 2 * 2.6 * left)) + 0.15);

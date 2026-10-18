@@ -86,7 +86,7 @@ export class Mishaps {
       // anything else just lands, rolls a bit and lies where it stopped, to be picked up again
       const basket = ['laundry', 'clothes', 'wet'].includes(item);
       if (basket) for (let i = 0; i < 5; i++) { const cl = P.randomGarment(i + 2); cl.scale.setScalar(0.6); cl.position.copy(m.position); cl.position.y += 0.25; cl.rotation.x = -Math.PI / 2; D.add(cl, { vel: toss(1.1, [0.6, 1.6]), spin: rnd(2, 5), r: 0.012, bounce: 0.05, flat: true, life: 14 }); }
-      D.add(m, { vel: toss(0.25, [0.1, 0.5]), spin: basket ? 3 : rnd(3, 8), r: basket ? 0.02 : 0.03, bounce: 0.3, flat: true, onHit: (sp, it) => { if (it.hits === 1) { sfx.thud(it.m.position); g.noise(it.m.position.x, it.m.position.z, 6, 'crash', 'player'); } },
+      D.add(m, { vel: toss(0.25, [0.1, 0.5]), spin: basket ? 3 : rnd(3, 8), r: basket ? 0.02 : 0.03, bounce: 0.3, flat: true, onHit: (sp, it) => { if (it.hits === 1) { if (/^gas/.test(item)) { sfx.clang(it.m.position, item === 'gasFull'); g.noise(it.m.position.x, it.m.position.z, 16, 'crash', 'player'); if (!g.dad.away) g.later(0.6, () => g.dad.say('dad.gas.clang', { loud: true, far: true })); } else { sfx.thud(it.m.position); g.noise(it.m.position.x, it.m.position.z, 6, 'crash', 'player'); } } },
         onRest: (it) => { const [x, z] = g.world.nearestFree(it.m.position.x, it.m.position.z); D.remove(it); g.spawnPickup(item, x, z); } });
       return;
     }

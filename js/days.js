@@ -4,6 +4,7 @@
 
 export const ITEMS = {
   talabat: 'طلبك من طلبات',
+  gasEmpty: 'الجرّة الفاضية', gasFull: 'الجرّة المليانة', veg: 'كيس الخضرة',
   tea: 'صينية الشاي', water: 'كاسة المي', remote: 'الريموت', glasses: 'نظارات أبوك', charger: 'الشاحن', paper: 'الجريدة',
   slipper: 'الشبشب', laundry: 'الغسيل', trash: 'كيس الزبالة', tomato: 'البندورة', chocolate: 'الشوكولاتة', kunafa: 'صينية الكنافة',
   cups: 'فناجين الضيوف', coffee: 'صينية القهوة', socks: 'الجرابات', clothes: 'الغسيل الناشف', toys: 'أغراضك', mansaf: 'سدر المنسف',
@@ -56,7 +57,7 @@ export const DAYS = [
   { id: 'sat', name: 'السبت', title: 'تعزيل البيت', intro: 'dad.intro.sat',
     blurb: 'عطلة. أبوك قاعد بالبيت ومعه الجريدة، يعني عينه عليك طول النهار. خلّص شغل البيت… وإذا لقيت فرصة، العب شوي.',
     segs: [{
-      tod: 'day', time: 300, clock: [10 * 60, 13 * 60], end: 'tasks', lightsOn: ['boys', 'sis', 'bath', 'hall'], visitor: [50, 85],
+      tod: 'day', time: 300, clock: [10 * 60, 13 * 60], end: 'tasks', lightsOn: ['boys', 'sis', 'bath', 'hall'], visitor: [50, 85], vendors: { veg: [20, 45] },
       dad: { mode: 'patrol', pace: 1.2, cmds: ['tea', 'water'], cmdEvery: [48, 66],
         plan: [tv(26, 38, { paper: true }), look('kitchen'), look('hallE', 2, 3), look('boys', 4, 6, { line: 'dad.sat' }), tv(22, 32, { paper: true }), look('sis', 3, 5), look('parents', 5, 8), look('yard', 5, 8)] },
       sibs: { chaos: [55, 80] },
@@ -91,7 +92,7 @@ export const DAYS = [
   { id: 'mon', name: 'الاثنين', title: 'فاتورة الكهربا', intro: 'dad.intro.mon',
     blurb: 'أجت الفاتورة. أبوك بيلف عالغرف غرفة غرفة، وأخوك الصغير بيشعّل وراه. لازم تدرس وتتحمم (والسخّان بياكل كهربا!) والبيت يضل مطفّي.',
     segs: [{
-      tod: 'night', time: 240, clock: [19 * 60, 22 * 60], end: 'time', final: 'noWaste', lightsOn: ['living', 'kitchen', 'hall'],
+      tod: 'night', time: 240, clock: [19 * 60, 22 * 60], end: 'time', final: 'noWaste', lightsOn: ['living', 'kitchen', 'hall'], vendors: { gas: [25, 60] },
       dad: { mode: 'patrol', pace: 1.5, strict: 1.6, cmds: ['light', 'water'], cmdEvery: [45, 62],
         plan: [tv(12, 18), look('kitchen', 3, 4), look('hallE', 2, 3), look('boys', 3, 5), look('sis', 3, 4), look('bath', 2, 3, { line: 'dad.mon' }), look('parents', 3, 4), look('salon', 3, 4)] },
       sibs: { chaos: [22, 34] },
@@ -122,7 +123,7 @@ export const DAYS = [
   { id: 'wed', name: 'الأربعاء', title: 'الشهادة', intro: 'dad.intro.wed',
     blurb: 'بالشنطة شهادة فيها 45 بالرياضيات ولازم تنوقّع. إذا قرأها أبوك راحت عليك. استنى لحظة رواق: بعد كاسة شاي وهو بيحضر التلفزيون… أو خلّي أمك تدبّرها.',
     segs: [{
-      tod: 'evening', time: 270, clock: [16 * 60, 19 * 60], end: 'time', final: 'exam', lightsOn: [], visitor: [70, 130],
+      tod: 'evening', time: 270, clock: [16 * 60, 19 * 60], end: 'time', final: 'exam', lightsOn: [], visitor: [70, 130], vendors: { gas: [20, 55] },
       dad: { mode: 'patrol', pace: 1.3, deskCheck: true, cmds: ['tea', 'water'], cmdEvery: [38, 52],
         plan: [tv(40, 55), look('kitchen', 3, 5), tv(35, 50), look('hallM', 3, 4)] },
       sibs: { chaos: [60, 90] },
@@ -175,7 +176,7 @@ export const DAYS = [
         { id: 'sleep', title: 'نام 8 ثواني كمان', kind: 'secret', steps: [{ stay: '@bed', secs: 8, act: 'sleep', lie: true, label: 'نام' }] },
       ],
     }, {
-      tod: 'day', time: 105, clock: [10 * 60 + 30, 11 * 60 + 45], end: 'tasks', bathBusy: 18, lightsOn: [], title: 'قبل الصلاة',
+      tod: 'day', time: 105, clock: [10 * 60 + 30, 11 * 60 + 45], end: 'tasks', bathBusy: 18, lightsOn: [], title: 'قبل الصلاة', vendors: { veg: [10, 24] },
       dad: { mode: 'patrol', pace: 1.4, plan: [tv(22, 30), look('hallM', 3, 4, { line: 'dad.fri.pray' }), { at: [14.6, 5.5], act: 'wait', dur: [400, 400], line: 'dad.fri.pray', face: [8, 5.5] }] },
       sibs: {},
       tasks: [

@@ -7,7 +7,7 @@ import { lerpAngle } from './char.js';
 import { H } from './world.js';
 import { shawarma } from './props.js';
 
-const HOLD = { tea: 'tray', coffee: 'tray', cups: 'tray', kunafa: 'tray', mansaf: 'tray', laundry: 'basket', clothes: 'basket', wet: 'basket', water: 'cup', trash: 'bag', talabat: 'bag', slipper: 'side' };
+const HOLD = { tea: 'tray', coffee: 'tray', cups: 'tray', kunafa: 'tray', mansaf: 'tray', laundry: 'basket', clothes: 'basket', wet: 'basket', water: 'cup', trash: 'bag', talabat: 'bag', veg: 'bag', gasEmpty: 'cyl', gasFull: 'cylFull', slipper: 'side' };
 
 export const TRAITS = {
   big: { name: 'سيف', role: 'الأخ الكبير · 16 سنة', walk: 2.1, run: 4.4, drain: 0.15, angerMult: 1.25, noise: 1, small: false,
@@ -78,6 +78,7 @@ export class Player {
     if (this.moving) {
       speed = (this.sneaking ? 1.0 : this.running ? this.t.run : this.t.walk) * Math.min(1, mag * 1.15);
       if (this.limp > 0) speed *= 0.6;
+      if (this.carrying && this.carrying.slow) speed *= this.carrying.slow;      // a full gas cylinder is twenty-five kilos
       // stick is camera-relative: forward = away from the camera
       const fx = -Math.sin(this.yaw), fz = -Math.cos(this.yaw);
       const dx = fx * my - fz * mx, dz = fz * my + fx * mx;
@@ -202,6 +203,11 @@ export class Player {
       at(0.24, 0.17, 1.14); m.position.y -= bob * 0.5; c.reachTo('R', V.copy(m.position)); c.reachTo('L', null); c.grip = 1; m.rotation.set(0, h, 0); it.inFist = true;
     } else if (style === 'bag') {      // hanging from the fist at the side, swinging
       at(0.04 + sway * 0.05, 0.3, 0.36); m.rotation.set(sway * 0.09, h, 0.05, 'YXZ'); grip('R', 0, 0.4, 0, 0.95); c.reachTo('L', null);
+    } else if (style === 'cyl') {      // an empty cylinder by its collar, swinging at your side
+      at(0.04 + sway * 0.03, 0.27, 0); m.position.y = Math.max(0.02, 0.75 * k - 0.62) + bob * 0.5; m.rotation.set(sway * 0.06, h, 0.07, 'YXZ'); grip('R', 0, 0.61, 0, 0.95); c.reachTo('L', null);
+    } else if (style === 'cylFull') {  // a full one (25 kilos): by the collar at your side, the arm straight, the other arm out for balance
+      at(0.06, 0.3, 0); m.position.y = Math.max(0.02, 0.72 * k - 0.62) + Math.abs(bob) * 0.3; m.rotation.set(sway * 0.03, h, 0.12, 'YXZ');
+      grip('R', -0.02, 0.6, 0, 0.95); c.reachTo('L', V2.set(c.pos.x - rx * 0.5 * k + fx * 0.05, 1.0 * k, c.pos.z - rz * 0.5 * k + fz * 0.05), 0.35); c.leanTarget = 0.1;
     } else if (style === 'side') {     // in the hand, arm down
       at(0.05, 0.27, 0.8); m.rotation.set(0, h, 0); grip('R', 0, 0.02, 0, 0.85); c.reachTo('L', null);
     } else {                            // small things: in the hand, forearm level
